@@ -5,8 +5,15 @@ from random import *
 
 # Create your views here.
 
+data = {}
+category = Category.objects.all()
+sub_category = Sub_Category.objects.all()
+data['category'] = category
+data['sub_category'] = sub_category
+
 def index(request):
-    return render(request, 'index.html')
+    print(data['category'])
+    return render(request, 'index.html',data)
 
 def contact(request):
     return render(request, 'contact.html')
@@ -16,6 +23,9 @@ def blog(request):
 
 def shop_details(request):
     return render(request, 'shop_details.html')
+
+def shoping_cart(request):
+    return render(request, 'shoping_cart.html')
 
 def logout(request):
     del request.session['email']
