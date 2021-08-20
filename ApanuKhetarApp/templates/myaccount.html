@@ -109,7 +109,13 @@
             font-size: 16px;
         }
 
-        .profile-info .panel-footer {
+
+        .profile-info {
+            background-color: #f8f7f5;
+            border-top: 1px solid #e7ebee;
+            padding-bottom: 300px;
+        }
+        .panel-footer {
             background-color: #f8f7f5;
             border-top: 1px solid #e7ebee;
         }
@@ -414,14 +420,19 @@
     
     <div class="container bootstrap snippets bootdey">
         <div class="row">
+            <div class="col-lg-12">
+                {% if msg %}
+                <p class="alert alert-danger">{{msg}}</p>
+                {% endif %}
+            </div>
             <div class="profile-nav col-md-3">
                 <div class="panel">
                     <div class="user-heading round">
                         <a href="#">
                             <img src="https://bootdey.com/img/Content/avatar/avatar3.png" alt="">
                         </a>
-                        <h1>Camila Smith</h1>
-                        <p>deydey@theEmail.com</p>
+                        <h1>{{user.FirstName}} {{user.LastName}}</h1>
+                        <p>{{user.Email}}</p>
                     </div>
 
                     <ul class="nav nav-pills nav-stacked">
@@ -430,7 +441,7 @@
                         <li><a href="#"> <i class="fa fa-edit"></i> Edit profile&nbsp;&nbsp;</a></li>
                         <li><a href="#"> <i class="fa fa-heart"></i> My Wishlist</a></li>
                         <li><a href="#"> <i class="fa fa-shopping-cart"></i> My Orders&nbsp;&nbsp;&nbsp;</a></li>
-                        <li><a href="#"> <i class="fa fa-unlock-alt"></i> Change Password</a></li>
+                        <li><a href="{% url 'change_password' %}"> <i class="fa fa-unlock-alt"></i> Change Password</a></li>
                         
 
                     </ul>
@@ -440,7 +451,7 @@
                 <div class="panel">
 
                     <footer class="panel-footer">
-                        <button class="btn btn-warning pull-right">Post</button>
+                        <button class="btn btn-warning pull-right">Edit</button>
                     </footer>
                 </div>
                 <div class="panel">
@@ -449,23 +460,23 @@
                         <h1>Personal Information</h1>
                         <div class="row">
                             <div class="bio-row">
-                                <p><span>First Name </span>: Camila</p>
+                                <p><span>First Name </span>: {{user.FirstName}}</p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Last Name </span>: Smith</p>
+                                <p><span>Last Name </span>: {{user.LastName}}</p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Country </span>: Australia</p>
+                                <p><span>Country </span>: </p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Birthday</span>: 13 July 1983</p>
+                                <p><span>Birthday</span>: </p>
                             </div>
                             
                             <div class="bio-row">
-                                <p><span>Email </span>: jsmith@flatlab.com</p>
+                                <p><span>Email </span>: {{user.Email}}</p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Mobile </span>: (12) 03 4567890</p>
+                                <p><span>Mobile </span>: </p>
                             </div>
                            
                         </div>

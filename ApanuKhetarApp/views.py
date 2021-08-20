@@ -126,4 +126,81 @@ def check_otp(request):
         return render(request,'otp_signup.html')
 
 def myaccount(request):
-    return render(request,'myaccount.html')
+    user = User.objects.get(Email=request.session['email'])
+    print(user)
+    return render(request,'myaccount.html',{'user':user})
+
+def change_password(request):
+    user = User.objects.get(Email=request.session['email'])
+
+    if request.method == 'POST':
+        v_old_pass=request.POST['foldpass']
+        v_new_pass=request.POST['fnewpass']
+        v_confirm_pass = request.POST['fcnewpass']
+
+        if v_old_pass == user.Password:
+            if v_old_pass == v_new_pass:
+                msg="Please Enter Different Password."
+                return render(request,'change_password.html',{'msg':msg})
+            elif v_new_pass == v_confirm_pass:
+                user.Password = v_new_pass
+                user.save()
+                msg="Password Change Sucessfully."
+                return render(request,'myaccount.html',{'user':user,'msg':msg})
+                
+            else:
+                msg="New Password And Confirm Password Is Not Matched."
+                return render(request,'change_password.html',{'msg':msg})
+        else:
+            msg="Old Password Is Incorrect"
+            return render(request,'change_password.html',{'msg':msg})
+
+    else:
+        return render(request,'change_password.html')
+
+def forgot_password(request):
+    if request.method == 'POST':
+        Email = request.POST['femail']
+        try:
+            user = User.objects.get(Email=Email)
+            if user:
+                global gen_otp
+                email_Subject = "OTP For Reset Password From ApanuKhetar"
+                gen_otp = randint(1000,9999) 
+                print(gen_otp)
+                sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName,'gen_otp':gen_otp})
+                return render(request,'get_otp.html',{'gen_otp':gen_otp,'femail':Email})
+                
+        except:
+            msg = "This Email Address Not Register With US.Please Check your Email Address."
+            return render(request,'get_email.html',{'msg':msg})
+    else:
+        return render(request,'get_email.html')
+
+def chk_otp_forgot_password(request):
+    votp = request.POST['fotp']
+    vgen_otp = request.POST['gen_otp']
+    vEmail = request.POST['femail']
+
+    if votp == vgen_otp:
+        return render(request, 'get_reset_password.html',{'femail':vEmail})
+    else:
+        msg = "OTP Is Invalid. Please Enter Valid OTP."
+        return render(request,'get_otp.html',{'msg':msg})
+
+def get_reset_password(request):
+    if request.method == 'POST':
+        v_new_pass=request.POST['fnewpass']
+        v_confirm_pass = request.POST['fcnewpass']
+        vEmail = request.POST['femail']
+        
+        user=User.objects.get(Email=vEmail) 
+        if v_new_pass == v_confirm_pass:
+            user.Password = v_new_pass
+            user.save()
+            msg="Password Reset Sucessfully."
+            return render(request,'login.html',{'msg1':msg})
+        else:
+            msg="New Password And Confirm Password Is Not Matched."
+            return render(request,'get_reset_password.html',{'femail':vEmail,'msg':msg})
+        
