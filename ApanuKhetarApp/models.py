@@ -21,7 +21,7 @@ class Category(models.Model):
 class Sub_Category(models.Model):
     Main_Category = models.ForeignKey(Category,on_delete=models.CASCADE)
     Sub_Category_Name = models.CharField(max_length=100)
-    sub_cat_image = models.ImageField(upload_to='Product_Images/',default="default.png")
+    sub_cat_image = models.ImageField(upload_to='Product_Images/',default="default.jpg")
 
     def __str__(self):
         return self.Sub_Category_Name + " | " + self.Main_Category.Category_Name
@@ -39,7 +39,7 @@ class Product(models.Model):
     Product_Stock = models.CharField(max_length=20,choices=CHOICES1,default="In Stock")
     Product_Quantity = models.IntegerField(default=100)
     Product_image_1=models.ImageField(upload_to='Product_Images/',null=True)
-    Product_image_2=models.ImageField(upload_to='Product_Images/',null=True,blank=True)
+    Product_image_2=models.ImageField(upload_to='Product_Images/',null=True,blank=True,default="default.jpg")
     Product_image_3=models.ImageField(upload_to='Product_Images/',null=True,blank=True)
     Product_image_4=models.ImageField(upload_to='Product_Images/',null=True,blank=True)
     Discount_Percentage = models.FloatField(null=True,blank=True)

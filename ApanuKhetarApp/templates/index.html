@@ -68,7 +68,7 @@
                 <div class="categories__slider owl-carousel">
                     {% for i in sub_category %}
                     <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-1.jpg' %}">
+                        <div class="categories__item set-bg" data-setbg="{{i.sub_cat_image.url}}">
                             <h5><a href="#">{{i.Sub_Category_Name}}</a></h5>
                         </div>
                     </div>
@@ -120,9 +120,11 @@
                 </div>
             </div>
             <div class="row featured__filter">
+                {% for i in products %}
+                {% if forloop.counter != 12 %}
                 <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
                     <div class="featured__item">
-                        <div class="featured__item__pic set-bg" data-setbg="{% static 'img/featured/feature-1.jpg' %}">
+                        <div class="featured__item__pic set-bg" data-setbg="{{i.Product_image_1.url}}">
                             <ul class="featured__item__pic__hover">
                                 <li><a href="#"><i class="fa fa-heart"></i></a></li>
                                 <li><a href="#"><i class="fa fa-retweet"></i></a></li>
@@ -130,12 +132,14 @@
                             </ul>
                         </div>
                         <div class="featured__item__text">
-                            <h6><a href="#">Crab Pool Security</a></h6>
-                            <h5>$30.00</h5>
+                            <h6><a href="#">{{i.Product_Name}}</a></h6>
+                            <h5>$ {{i.Product_Price}}</h5>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-3 col-md-4 col-sm-6 mix vegetables fastfood">
+                {% endif %}
+                {% endfor %}
+                <!-- <div class="col-lg-3 col-md-4 col-sm-6 mix vegetables fastfood">
                     <div class="featured__item">
                         <div class="featured__item__pic set-bg" data-setbg="{% static 'img/featured/feature-2.jpg' %}">
                             <ul class="featured__item__pic__hover">
@@ -239,7 +243,7 @@
                             <h5>$30.00</h5>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </section>
