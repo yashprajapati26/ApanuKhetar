@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from . models import *
 from . utils import *
 from random import *
@@ -24,11 +24,23 @@ def contact(request):
 def blog(request):
     return render(request, 'blog.html',data)
 
-def shop_details(request):
-    return render(request, 'shop_details.html',data)
+def product_details(request):
+    return render(request, 'product_details.html',data)
+
+
+def product_details(request,pk):
+    product = Product.objects.get(pk=pk)
+    cat = product.Category
+    more_products = Product.objects.filter(Category=cat)
+    return render(request, 'product_details.html',{'product':product,'more_products':more_products},data)
+    
+
 
 def shoping_cart(request):
     return render(request, 'shoping_cart.html',data)
+
+def shop(request):
+    return render(request, 'shop.html',data)
 
 def logout(request):
     del request.session['email']
@@ -38,7 +50,7 @@ def logout(request):
 def login(request):
     if request.method == 'POST':
         Email = request.POST['femail']
-        Password = request.POST['fpassword',data]
+        Password = request.POST['fpassword']
         
         try:
             user = User.objects.get(Email=Email,Password=Password)
@@ -63,7 +75,7 @@ def login(request):
                 msg="please enter all fileds"
                 return render(request,'login.html',{'msg1':msg},data)
             else:
-                msg="somothing wrong."
+                msg="Password Wrong.Please Enter Valid Password."
                 return render(request,'login.html',{'msg1':msg},data)
             
         # return render(request, 'index.html')
@@ -216,4 +228,72 @@ def get_reset_password(request):
         else:
             msg="New Password And Confirm Password Is Not Matched."
             return render(request,'get_reset_password.html',{'femail':vEmail,'msg':msg},data)
-        
+
+def mywishlist(request):
+    try:
+        user = User.objects.get(Email = request.session['email'])
+        wishlist=WishList.objects.filter(user=user)
+        request.session['total_wishlist']=len(wishlist)
+        return render(request,'mywishlist.html',{'wishlist':wishlist})
+    except:
+        msg = "User Must Be Login for use Wishlist Features."
+        return render(request, 'login.html',{'msg1':msg},data)
+
+def add_to_wishlist(request,pk):
+    product = Product.objects.get(pk=pk)
+    try:
+        user = User.objects.get(Email = request.session['email'])
+        wishlist = WishList.objects.filter(user= user)
+        for i in wishlist:
+            if i.product.pk==product.pk:
+                msg="Product Is Already In Your WishList"
+                request.session['total_wishlist']=len(wishlist)
+                return render(request,'mywishlist.html',{'wishlist':wishlist,'msg':msg})
+        WishList.objects.create(user=user,product=product) 
+        wishlist=WishList.objects.filter(user=user)
+        request.session['total_wishlist']=len(wishlist)
+        msg = "Added To Wishlist."
+        return render(request,'mywishlist.html',{'wishlist':wishlist,'msg':msg})
+    except Exception as e:
+        print("-->",e)
+        print("User Must Be Login...")
+        msg = "User Must Be Login for use Wishlist Features."
+        return render(request, 'login.html',{'msg1':msg},data)
+
+
+def mycart(request):
+    try:
+        user = User.objects.get(Email = request.session['email'])
+        cart=Cart.objects.filter(user=user)
+        request.session['total_cart']=len(cart)
+        return render(request,'shoping_cart.html',{'cart':cart})
+    except Exception as e:
+        print(">>",e)
+        msg = "User Must Be Login for use Cart Features."
+        return render(request, 'login.html',{'msg1':msg},data)
+
+
+def add_to_cart(request,pk):
+    product = Product.objects.get(pk=pk)
+    try:
+        user = User.objects.get(Email = request.session['email'])
+        if user:
+            cart = Cart.objects.filter(user=user,status="pending")
+            for i in cart:
+                if i.product.pk==product.pk:
+                    msg="Product is Already In Your Cart."
+                    request.session['total_cart']=len(cart)
+                    return render(request,'shoping_cart.html',{'carts':cart,'msg1':msg})
+
+            price=product.Product_Price
+            total_price=product.Product_Price
+            Cart.objects.create(user=user,product=product,price=price,total_price=total_price)
+            return redirect('mycart')
+
+
+    except Exception as e:
+        print("-->",e)
+        print("User Must Be Login...")
+        msg = "User Must Be Login for use Cart Features."
+        return render(request, 'login.html',{'msg1':msg},data)
+

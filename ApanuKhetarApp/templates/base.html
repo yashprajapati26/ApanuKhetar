@@ -99,7 +99,7 @@
                                         
                                     </ul>
                                 </li> -->
-                                <li><a href="./shop-grid.html">Shop</a></li>
+                                <li><a href="{% url 'shop' %}">Shop</a></li>
                                 <!-- <li><a href="#">Categories</a>
                                     <ul class="header__menu__dropdown">
                                         {% for i in category %}
@@ -110,7 +110,7 @@
                                 </li> -->
                                 <li><a href="#">Pages</a>
                                     <ul class="header__menu__dropdown">
-                                        <li><a href="{% url 'shop_details' %}">Shop Details</a></li>
+                                        <li><a href="{% url 'product_details' %}">Product Details</a></li>
                                         <li><a href="{% url 'shoping_cart' %}">Shoping Cart</a></li>
                                         <li><a href="./checkout.html">Check Out</a></li>
                                         <li><a href="#">Blog Details</a></li>
@@ -124,8 +124,8 @@
                     <div class="col-lg-3">
                         <div class="header__cart">
                             <ul>
-                                <li><a href="#"><i class="fa fa-heart"></i> <span>1</span></a></li>
-                                <li><a href="#"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
+                                <li><a href="{% url 'mywishlist' %}"><i class="fa fa-heart"></i> <span>1</span></a></li>
+                                <li><a href="{% url 'mycart' %}"><i class="fa fa-shopping-bag"></i> <span>3</span></a></li>
                             </ul>
                             <div class="header__cart__price">item: <span>$150.00</span></div>
                         </div>

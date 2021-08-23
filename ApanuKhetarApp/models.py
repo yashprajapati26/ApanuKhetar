@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -53,4 +54,23 @@ class Product(models.Model):
         return self.Product_Name + " | " + self.Category.Main_Category.Category_Name + " > " + self.Category.Sub_Category_Name
 
 
+class WishList(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    product=models.ForeignKey(Product,on_delete=models.CASCADE)
+    added_date=models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return self.user.FirstName+" - "+self.product.Product_Name
+
+class Cart(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
+    product=models.ForeignKey(Product,on_delete=models.CASCADE)
+    added_date=models.DateTimeField(default=timezone.now)
+    qty=models.CharField(max_length=100,default="1")
+    price=models.CharField(max_length=100,default="")
+    total_price=models.CharField(max_length=100,default="")
+    status=models.CharField(max_length=10,default="pending")
+
+    def __str__(self):
+        return self.user.FirstName+" - "+self.product.Product_Name
 
