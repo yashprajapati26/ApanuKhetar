@@ -19,7 +19,17 @@ def index(request):
     return render(request, 'index.html',data)
 
 def contact(request):
-    return render(request, 'contact.html',data)
+    if request.method == 'POST':
+        vname = request.POST['fname']
+        vemail = request.POST['email']
+        vsubject = request.POST['fsubject']
+        vmessage = request.POST['fmessage']
+        Contact.objects.create(Name = vname,Email = vemail,Subject = vsubject,Message = vmessage)
+        msg = "Send Message Sucessfully."
+        return render(request, 'contact.html',{'msg':msg},data)
+
+    else:
+        return render(request, 'contact.html',data)
 
 def blog(request):
     return render(request, 'blog.html',data)
@@ -33,7 +43,6 @@ def product_details(request,pk):
     cat = product.Category
     more_products = Product.objects.filter(Category=cat)
     return render(request, 'product_details.html',{'product':product,'more_products':more_products},data)
-    
 
 
 def shoping_cart(request):
