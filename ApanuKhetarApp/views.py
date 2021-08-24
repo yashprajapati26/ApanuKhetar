@@ -16,6 +16,7 @@ data['products'] = products
 
 def index(request):
     print(data['category'])
+    
     return render(request, 'index.html',data)
 
 def contact(request):
@@ -49,11 +50,31 @@ def shoping_cart(request):
     return render(request, 'shoping_cart.html',data)
 
 def shop(request):
+    product = Product.objects.all()
+    print(product)
+    data['products_shop'] = product
+    return render(request, 'shop.html',data)
+
+def shop1(request,pk):
+    cat = Category.objects.get(pk=pk)
+    sub_cat = Sub_Category.objects.filter(Main_Category=cat)
+    data['sub_cat']=sub_cat
+    print(sub_cat)
+    sc = ""
+    for i in sub_cat:
+        sc = i
+        break
+    product = Product.objects.filter(Category=sc)
+    print(product)
+    data['products_shop'] = product
     return render(request, 'shop.html',data)
 
 def logout(request):
     del request.session['email']
     del request.session['name']
+    del request.session['total_wishlist']
+    del request.session['total_cart']
+
     return render(request,'index.html',data)
 
 def login(request):
@@ -63,10 +84,14 @@ def login(request):
         
         try:
             user = User.objects.get(Email=Email,Password=Password)
+            wishlist=WishList.objects.filter(user=user)
+            cart = Cart.objects.filter(user=user)
             if user.Status == 'Active':
                 request.session['name']=user.FirstName
                 request.session['email']=user.Email
-               
+                request.session['total_wishlist']=len(wishlist)
+                request.session['total_cart']=len(cart)
+
                 print(request.session['email'])
                 return render(request,'index.html',data)
             else:
@@ -270,11 +295,18 @@ def add_to_wishlist(request,pk):
         return render(request, 'login.html',{'msg1':msg},data)
 
 
+def remove_from_wishlist(request,pk):
+	wishlist = WishList.objects.get(pk=pk)
+	wishlist.delete()
+	return redirect('mywishlist')
+
+
 def mycart(request):
     try:
         user = User.objects.get(Email = request.session['email'])
         cart=Cart.objects.filter(user=user)
         request.session['total_cart']=len(cart)
+        print(">>Showing Carts Item")
         return render(request,'shoping_cart.html',{'cart':cart})
     except Exception as e:
         print(">>",e)
@@ -292,11 +324,13 @@ def add_to_cart(request,pk):
                 if i.product.pk==product.pk:
                     msg="Product is Already In Your Cart."
                     request.session['total_cart']=len(cart)
-                    return render(request,'shoping_cart.html',{'carts':cart,'msg1':msg})
+                    print(">>Already")
+                    return render(request,'shoping_cart.html',{'cart':cart,'msg':msg})
 
             price=product.Product_Price
             total_price=product.Product_Price
             Cart.objects.create(user=user,product=product,price=price,total_price=total_price)
+            print(">>Added To Cart")
             return redirect('mycart')
 
 
@@ -306,3 +340,8 @@ def add_to_cart(request,pk):
         msg = "User Must Be Login for use Cart Features."
         return render(request, 'login.html',{'msg1':msg},data)
 
+
+def remove_from_cart(request,pk):
+	cart=Cart.objects.get(pk=pk)
+	cart.delete()
+	return redirect('mycart')

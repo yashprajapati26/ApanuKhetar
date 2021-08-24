@@ -104,6 +104,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% if wishlist %}
                                 {% for i in wishlist %}
                                 <tr>
                                     <td class="shoping__cart__item">
@@ -115,10 +116,20 @@
                                     </td>
                                     
                                     <td class="shoping__cart__item__close">
-                                        <span class="icon_close"></span>
+                                        <a href="{% url 'remove_from_wishlist' pk=i.pk %}"><span class="icon_close"></span></a>
                                     </td>
                                 </tr>
                                 {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td>
+                                       
+                                        <p>Wishlist is Empty</p>.
+                                        
+                                    </td>
+                                   
+                                </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>

@@ -84,12 +84,20 @@
     </section>
     <!-- Breadcrumb Section End -->
 
+
     <!-- Shoping Cart Section Begin -->
     <section class="shoping-cart spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="shoping__cart__table">
+                        
+    <div class="col-lg-12">
+        {% if msg %}
+        <p class="alert alert-danger">{{msg}}</p>
+        {% endif %}
+    </div>
+
                         <table>
                             <thead>
                                 <tr>
@@ -101,6 +109,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% if cart %}
                                 {% for i in cart %}
                                 <tr>
                                     <td class="shoping__cart__item">
@@ -121,10 +130,20 @@
                                         {{i.total_price}}
                                     </td>
                                     <td class="shoping__cart__item__close">
-                                        <span class="icon_close"></span>
+                                       <a href="{% url 'remove_from_cart' pk=i.pk %}"><span class="icon_close"></span></a>
                                     </td>
                                 </tr>
                                 {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td>
+                                       
+                                        <p>Cart is Empty</p>.
+                                        
+                                    </td>
+                                   
+                                </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
