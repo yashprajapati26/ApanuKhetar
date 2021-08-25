@@ -1,0 +1,679 @@
+(function () {
+	window.CPA = (function () {
+		function CPA() { }
+
+		CPA.api_url = "https://app-sp.webkul.com/shopify-zipcode-validator/";
+
+		CPA.appendDiv = function () {
+			return CPA.$.ajax
+				({
+					url: "" + CPA.api_url + "index.php?p=find_zipcode_availability",
+					type: "GET",
+					async: true,
+					cache: false,
+					jsonpCallback: 'createZipcodeForm',
+					contentType: "application/json",
+					dataType: "jsonp",
+					data:
+					{
+						shop: CPA.shop_name,
+					},
+					success: function (data) {
+						console.log(data);
+						if (data['container_details'] != false) {
+							var cookie_zipcode = CPA.getCookie('zipcode');
+							console.log(cookie_zipcode);
+							var html = "<style>#wk_find_zipcode{font-family:" + data['container_details']['font_family'] + ";}</style>";
+							html += "<div class='wk_zipfinder_form' ";
+							if (cookie_zipcode != "")
+								html += "style='display:none'";
+							html += ">";
+							html += "<div class='wk_zipfinder_heading'><img src='" + CPA.api_url + "img/icon-navigator.png'> " + data['container_details']['heading_label'] + ":</div>";
+							html += "<div class='wk_zipfinder_input'>";
+							html += "<input type='text' name='wk_zipcode' value='" + cookie_zipcode + "' id='wk_zipcode' placeholder='" + data['container_details']['placeholder'] + "'>";
+							html += '<input type="hidden" value="' + data['container_details']['inavailability_msg'] + '" id="wk_inavail_msg">';
+							html += '<input type="hidden" value="' + data['container_details']['inavailability_msg_cart'] + '" id="wk_inavail_msg_cart">';
+							html += "<input type='hidden' value='" + data['container_details']['alert_msg'] + "' id='wk_alert_msg'>";
+							html += "<input type='hidden' value='" + data['container_details']['change_key'] + "' id='wk_change_key'>";
+
+							html += "<input type='hidden' value='" + data['container_details']['disable_add_to_cart'] + "' id='disable_add_to_cart'>";
+							html += "<input type='hidden' value='" + data['container_details']['error_bgcolor'] + "' id='error_bgcolor'>";
+							html += "<input type='hidden' id='wk_zip_avail' value=''>";
+							html += "</div>";
+							html += "<div class='wk_zipfinder_btn'>";
+							html += "<input type='button' value='" + data['container_details']['btn_label'] + "' class='btn'>";
+							html += "</div>";
+							html += "</div>";
+							html += "<div class='wk_availability_msg' style='display:none'";
+							if (cookie_zipcode != "")
+								html += "style='display:block'";
+							else
+								html += "style='display:none'";
+							html += "></div>";
+							if (data['container_details']['disable_add_to_cart'] == 1) {
+								html += "<div class='wk_check_availability_msg' ";
+								if (cookie_zipcode != "")
+									html += "style='display:none'";
+								html += ">" + data['container_details']['sub_heading_label'] + "</div>";
+								//$("[name='add']").attr('disabled',true);
+							}
+							return CPA.insertHtml(html);
+						}
+					},
+					error: function (xhr, ajaxOptions, thrownError) {
+						console.log(xhr.status);
+						//console.log(thrownError);
+					}
+				});
+		};
+
+		CPA.insertHtml = function (template) {
+			var product_dom = $("#wk_find_zipcode");
+			product_dom.html(template);
+		};
+
+		CPA.submitZipcode = function (zipcode) {
+			$('#wk_zip_err').hide();
+			var product_handle = $('#wk_find_zipcode').attr('product-handle');
+			if (!(product_handle) || typeof product_handle == undefined || product_handle == "undefined" || product_handle == undefined) {
+				var product_handle = CPA.product_handle;
+			}
+			else
+				console.log('handle from theme');
+
+			console.log(product_handle);
+			if (product_handle == 'cart') {
+				$.ajax
+					({
+						url: '/cart.js',
+						type: 'GET',
+						contentType: "application/json",
+						dataType: 'json',
+						// data: { shop: CPA.shop_name },
+						success: function (result) {
+							var length = (result.items.length);
+							console.log(result);
+							var resultItems = [];
+							for (i = 0; i < length; i++) {
+
+								resultItems.push(result.items[i]['product_id']);
+								// var resultFinal = resultFinal.concat(resultItems);
+								// console.log(resultFinal);
+							}
+							console.log(resultItems);
+
+							console.log('cart validate');
+							return CPA.$.ajax
+								({
+									url: "" + CPA.api_url + "index.php?p=find_zipcode_availability",
+									type: "GET",
+									async: true,
+									cache: false,
+									jsonpCallback: 'submitZipcodeFormCart',
+									contentType: "application/json",
+									dataType: "jsonp",
+									data:
+									{
+										shop: CPA.shop_name,
+										product_handle: product_handle,
+										zipcode: zipcode,
+										result: resultItems
+									},
+									success: function (data) {
+										console.log('cart successs');
+										console.log(data);
+										if (data['zipcode_details'] != false && data['unavailable_products'] == null) {
+											if (data['zipcode_details'] != "not found") {
+												console.log(str);
+												//document.cookie="zipcode="+zipcode;"domain=nidhi-dev-shop1.myshopify.com;path=/";
+												document.cookie = "zipcode=" + zipcode + ";path=/";
+												var city_name = data['zipcode_details']['city_name'];
+												var success_msg = data['zipcode_details']['availability_msg'];
+                                              console.log(success_msg);
+												var change_key = data['zipcode_details']['change_key'];
+												if (success_msg != "") {
+													success_msg = success_msg.replace('{zipcode}', "<b>" + zipcode + "</b>");
+													success_msg = success_msg.replace('{cityname}', "<b>" + city_name + "</b>");
+												}
+
+												success_msg += " <span id='wk_change_zipcode'>" + change_key + "</span>";
+												//var success_div = "Delivery to Zipcode  <b>"+zipcode+" "+city_name+"</b> is Available  <span id='wk_change_zipcode'>Change</span>";
+												$(".wk_zipfinder_form").css('display', 'none');
+												$(".wk_availability_msg").css('display', 'block');
+												$(".wk_availability_msg").css('background-color', data['zipcode_details']['success_bgcolor']);
+												$(".wk_availability_msg").css('border-color', '#c9ebd1');
+												$(".wk_availability_msg").css('width', 'auto');
+												$(".wk_availability_msg").css('float', 'right');
+												$(".wk_availability_msg").html(success_msg);
+												//$("[name='add']").removeAttr('disabled');
+												console.log('add name length==' + $("[name='checkout']").length);
+												// console.log('action length=='+$("[action*='/cart/add']").length);
+												if ($("[name='checkout']").length != 0)
+													$("[name='checkout']").removeAttr('disabled');
+												else
+													$("[action*='/cart/add']").find("[type='submit']").removeAttr('disabled');
+
+												$(".wk_check_availability_msg").css('display', 'none');
+												$("#wk_zip_avail").attr('value', '1');
+											}
+											else {
+												/*var alert_msg = $('#wk_alert_msg').val();
+												alert(alert_msg);*/
+											}
+										}
+										else if (data['unavailable_products'] != false || data['zipcode_details'] == false) {
+											// var length = data['unavailable_products'].length;
+											var str = "";
+											for (var prod in data) {
+												str += data['unavailable_products'] + ", ";
+												var str = str.substring(0, str.length - 2);
+												console.log(str);
+											}
+											document.cookie = "zipcode=" + zipcode + ";path=/";
+											var error_msg = $('#wk_inavail_msg_cart').val();
+											var error_bgcolor = $('#error_bgcolor').val();
+											var disable_add_to_cart = $('#disable_add_to_cart').val();
+											var change_key = $('#wk_change_key').val();
+
+											if (error_msg != "" && error_msg != "undefined") {
+												console.log(error_msg);
+												var error_message = error_msg.replace("{zipcode}", "<b>" + zipcode + "</b>");
+												var error_message = error_message.replace("{product}", "<b>" + str + "</b>");
+												// error_message += " for " +str+ "";
+												error_message += " <span id='wk_change_zipcode'>" + change_key + "</span>";
+												console.log(error_message);
+											}
+
+											$(".wk_zipfinder_form").css('display', 'none');
+											$(".wk_availability_msg").css('display', 'block');
+											$(".wk_availability_msg").css('background-color', error_bgcolor);
+											$(".wk_availability_msg").css('border-color', '#ff9f97');
+											$(".wk_availability_msg").css('width', 'auto');
+											$(".wk_availability_msg").css('float', 'right');
+											$(".wk_availability_msg").html(error_message);
+
+											if (disable_add_to_cart == 1) {
+												//disable add to cart
+												//$("[name='add']").attr('disabled',true);
+												console.log('add name length==' + $("[name='add']").length);
+												console.log('action length==' + $("[action*='/cart/add']").length);
+												//disable add to cart
+												if ($("[name='checkout']").length != 0)
+													$("[name='checkout']").attr('disabled', true);
+												else
+													$("[action*='/cart/add']").find("[type='submit']").attr('disabled', true);
+											}
+
+											$(".wk_check_availability_msg").css('display', 'none');
+											$("#wk_zip_avail").attr('value', '0');
+										}
+									},
+									error: function (xhr, ajaxOptions, thrownError, response) {
+										console.log(response);
+										console.log('error cart');
+										console.log(xhr);
+										//console.log(thrownError);
+										document.cookie = "zipcode=" + zipcode + ";path=/";
+										var error_msg = $('#wk_inavail_msg').val();
+										var error_bgcolor = $('#error_bgcolor').val();
+										var disable_add_to_cart = $('#disable_add_to_cart').val();
+										var change_key = $('#wk_change_key').val();
+										if (error_msg != "" && error_msg != "undefined") {
+											console.log(error_msg);
+											var error_message = error_msg.replace("{zipcode}", "<b>" + zipcode + "</b>");
+											error_message += " <span id='wk_change_zipcode'>" + change_key + "</span>";
+										}
+										$(".wk_zipfinder_form").css('display', 'none');
+										$(".wk_availability_msg").css('display', 'block');
+										$(".wk_availability_msg").css('background-color', error_bgcolor);
+										$(".wk_availability_msg").css('border-color', '#ff9f97');
+										$(".wk_availability_msg").css('width', 'auto');
+										$(".wk_availability_msg").css('float', 'right');
+										$(".wk_availability_msg").html(error_message);
+
+										if (disable_add_to_cart == 1) {
+											//disable add to cart
+											//$("[name='add']").attr('disabled',true);
+											console.log('add name length==' + $("[name='add']").length);
+											console.log('action length==' + $("[action*='/cart/add']").length);
+											//disable add to cart
+											if ($("[name='checkout']").length != 0)
+												$("[name='checkout']").attr('disabled', true);
+											else
+												$("[action*='/cart/add']").find("[type='submit']").attr('disabled', true);
+										}
+
+										$(".wk_check_availability_msg").css('display', 'none');
+										$("#wk_zip_avail").attr('value', '0');
+									}
+								});
+
+						},
+						error: function (xhr, ajaxOptions, thrownError) {
+							//$('.wk_ajax_loader').hide();
+							console.log('eror');
+							console.log(xhr.status);
+							console.log(thrownError);
+						}
+					});
+			}
+			else {
+				return CPA.$.ajax
+					({
+						url: "" + CPA.api_url + "index.php?p=find_zipcode_availability",
+						type: "GET",
+						async: true,
+						cache: false,
+						jsonpCallback: 'submitZipcodeForm',
+						contentType: "application/json",
+						dataType: "jsonp",
+						data:
+						{
+							shop: CPA.shop_name,
+							product_handle: product_handle,
+							zipcode: zipcode
+						},
+						success: function (data) {
+							console.log('success product');
+							console.log(data);
+							if (data['zipcode_details'] != false) {
+								if (data['zipcode_details'] != "not found") {
+									//document.cookie="zipcode="+zipcode;"domain=nidhi-dev-shop1.myshopify.com;path=/";
+									document.cookie = "zipcode=" + zipcode + ";path=/";
+									var city_name = data['zipcode_details']['city_name'];
+									var success_msg = data['zipcode_details']['availability_msg'];
+									var change_key = data['zipcode_details']['change_key'];
+                                
+									if (success_msg != "" && success_msg != null) {
+										success_msg = success_msg.replace('{zipcode}', "<b>" + zipcode + "</b>");
+										success_msg = success_msg.replace('{cityname}', "<b>" + city_name + "</b>");
+									}
+
+									success_msg += " <span id='wk_change_zipcode'>" + change_key + "</span>";
+									//var success_div = "Delivery to Zipcode  <b>"+zipcode+" "+city_name+"</b> is Available  <span id='wk_change_zipcode'>Change</span>";
+									$(".wk_zipfinder_form").css('display', 'none');
+									$(".wk_availability_msg").css('display', 'block');
+									$(".wk_availability_msg").css('background-color', data['zipcode_details']['success_bgcolor']);
+									$(".wk_availability_msg").css('border-color', '#c9ebd1');
+									$(".wk_availability_msg").html(success_msg);
+									//$("[name='add']").removeAttr('disabled');
+									console.log('add name length==' + $("[name='add']").length);
+									console.log('action length==' + $("[action*='/cart/add']").length);
+									if ($("[name='add']").length != 0)
+										$("[name='add']").removeAttr('disabled');
+									else
+										$("[action*='/cart/add']").find("[type='submit']").removeAttr('disabled');
+
+									if ($('.shopify-payment-button__button').length != 0)
+										$('.shopify-payment-button__button').removeAttr('disabled');
+
+									$(".wk_check_availability_msg").css('display', 'none');
+									$("#wk_zip_avail").attr('value', '1');
+								}
+								else {
+									/*var alert_msg = $('#wk_alert_msg').val();
+									alert(alert_msg);*/
+								}
+							}
+							if (typeof RP !== 'undefined' && CPA.$.isFunction(RP)) {
+								if ($('#wk_zip_related_products').length != 0) {
+									var collection_handle = $('#wk_zip_related_products').data('handle');
+									var product_handle = $('#wk_zip_related_products').data('prohandle');
+									RP.getRelatedProducts(zipcode, collection_handle, product_handle);
+								}
+							}
+						},
+						error: function (xhr, ajaxOptions, thrownError, data) {
+							console.log('error product');
+							console.log(xhr.status);
+							//console.log(thrownError);
+							document.cookie = "zipcode=" + zipcode + ";path=/";
+							var error_msg = $('#wk_inavail_msg').val();
+							var error_bgcolor = $('#error_bgcolor').val();
+							var disable_add_to_cart = $('#disable_add_to_cart').val();
+							var change_key = $('#wk_change_key').val();
+							if (error_msg != "" && error_msg != "undefined") {
+								console.log(error_msg);
+								var error_message = error_msg.replace("{zipcode}", "<b>" + zipcode + "</b>");
+								error_message += " <span id='wk_change_zipcode'>" + change_key + "</span>";
+							}
+							$(".wk_zipfinder_form").css('display', 'none');
+							$(".wk_availability_msg").css('display', 'block');
+							$(".wk_availability_msg").css('background-color', error_bgcolor);
+							$(".wk_availability_msg").css('border-color', '#ff9f97');
+							$(".wk_availability_msg").html(error_message);
+
+							if (disable_add_to_cart == 1) {
+								//disable add to cart
+								//$("[name='add']").attr('disabled',true);
+								console.log('add name length==' + $("[name='add']").length);
+								console.log('action length==' + $("[action*='/cart/add']").length);
+								//disable add to cart
+								if ($("[name='add']").length != 0)
+									$("[name='add']").attr('disabled', true);
+								else
+									$("[action*='/cart/add']").find("[type='submit']").attr('disabled', true);
+								if ($('.shopify-payment-button__button').length != 0)
+									$('.shopify-payment-button__button').attr('disabled', true);
+							}
+
+							$(".wk_check_availability_msg").css('display', 'none');
+							$("#wk_zip_avail").attr('value', '0');
+
+							if (typeof RP !== 'undefined' && CPA.$.isFunction(RP)) {
+								if ($('#wk_zip_related_products').length != 0) {
+									var collection_handle = $('#wk_zip_related_products').data('handle');
+									var product_handle = $('#wk_zip_related_products').data('prohandle');
+									RP.getRelatedProducts(zipcode, collection_handle, product_handle);
+								}
+							}
+						}
+					});
+			};
+		};
+
+
+		CPA.getCookie = function (cname) {
+			var name = cname + "=";
+			var ca = document.cookie.split(';');
+			for (var i = 0; i < ca.length; i++) {
+				var c = ca[i];
+				while (c.charAt(0) == ' ') c = c.substring(1);
+				if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+			}
+			return "";
+		};
+
+
+		CPA.labelLoadjQuery = function (afterLoad) {
+			/*if (Shopify.shop != "boatlifestylein.myshopify.com/" ) {
+				return CPA.labelLoadScript("//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js", function () {
+					CPA.$ = jQuery.noConflict(true);
+					return afterLoad();
+				});
+			}
+			else {
+				CPA.$ = jQuery.noConflict(true);
+				return afterLoad();
+			}*/
+          CPA.$ = jQuery.noConflict(true);
+				return afterLoad();
+
+		};
+
+		/*CPA.loadLink = function(url,callback)
+		{
+			var style;
+			style = document.createElement("link");
+			style.type = "text/css";
+			style.rel = "stylesheet";
+			
+
+			if (script.readyState) 
+			{
+				script.onreadystatechange = function() 
+				{
+					if (script.readyState === "loaded" || script.readyState === "complete") 
+					{
+						script.onreadystatechange = null;
+						return callback();
+					}
+				};
+			} 
+			else 
+			{
+				script.onload = function() 
+				{
+					return callback();
+				};
+			}
+
+			style.href = RM.api_url+'bootstrap3.2.0/css/bootstrap.css';
+			return document.getElementsByTagName("head")[0].appendChild(style);
+
+		}*/
+
+		CPA.labelLoadScript = function (url, callback) {
+			var script;
+			script = document.createElement("script");
+			script.type = "text/javascript";
+
+			var style;
+			style = document.createElement("link");
+			style.type = "text/css";
+			style.rel = "stylesheet";
+
+			if (script.readyState) {
+				script.onreadystatechange = function () {
+					if (script.readyState === "loaded" || script.readyState === "complete") {
+						script.onreadystatechange = null;
+						return callback();
+					}
+				};
+			}
+			else {
+				script.onload = function () {
+					return callback();
+				};
+			}
+
+			script.src = url;
+			style.href = CPA.api_url + 'css/find_zipcode_availability.css';
+
+			document.getElementsByTagName("head")[0].appendChild(script);
+			document.getElementsByTagName("head")[0].appendChild(style);
+			return true;
+		};
+
+		return CPA;
+	})();
+
+	CPA.path = window.location.pathname.split('/');
+
+
+	CPA.shop_name = Shopify.shop;
+
+	CPA.product_handle = CPA.path.pop(-1);
+
+	CPA.page = CPA.path.pop(-2);
+
+	//console.log(selectCallback);
+	//alert(selectCallback);
+	console.log('server 1');
+
+	CPA.labelLoadjQuery(function () {
+      console.log('zipcode block');
+		// CPA.$.ajaxSetup({
+		// 	cache: false
+		// });
+
+		if ($('#wk_find_zipcode').length != 0) {
+			CPA.appendDiv();
+			var cookie_zipcode = CPA.getCookie('zipcode');
+			var disable_add_to_cart = $('#disable_add_to_cart').val();
+			console.log(document.cookie);
+			if (cookie_zipcode != "") {
+				console.log('cookie not empty');
+				console.log(cookie_zipcode);
+				CPA.submitZipcode(cookie_zipcode);
+			}
+			else {
+				console.log('cookie empty');
+				console.log('disable add to cart==' + disable_add_to_cart);
+				setTimeout(function () {
+					var disable_add_to_cart = $('#disable_add_to_cart').val();
+					if (disable_add_to_cart == 1) {
+						console.log('disable add to cart')
+						//$("[name='add']").attr('disabled',true);
+						console.log('add name length==' + $("[name='add']").length);
+						console.log('action length==' + $("[action*='/cart/add']").length);
+						// console.log('add checkout length=='+$("[name='checkout']").length);
+
+						//disable add to cart
+						if ($("[name='add']").length != 0 || $("[name='checkout']").length != 0) {
+							$("[name='add']").attr('disabled', true);
+							$("[name='checkout']").attr('disabled', true);
+						}
+						else
+							$("[action*='/cart/add']").find("[type='submit']").attr('disabled', true);
+
+						if ($('.shopify-payment-button__button').length != 0)
+							$('.shopify-payment-button__button').attr('disabled', true);
+					}
+				}, 1000);
+
+				/*if(disable_add_to_cart == 1)
+				{
+					console.log('disable add to cart')
+					//$("[name='add']").attr('disabled',true);
+					console.log('add name length=='+$("[name='add']").length);
+					console.log('action length=='+$("[action*='/cart/add']").length);
+					//disable add to cart
+					if($("[name='add']").length != 0)
+						$("[name='add']").attr('disabled',true);
+					else
+						$("[action*='/cart/add']").find("[type='submit']").attr('disabled',true);
+				}*/
+				//$('.wk_check_availability_msg').attr('style','');
+			}
+		}
+
+	});
+
+	$('body').on('click', '.wk_zipfinder_btn', function () {
+		var zipcode = $.trim($('#wk_zipcode').val());
+		//var alert_msg = $('#wk_alert_msg').val();
+		if (zipcode != "")
+			CPA.submitZipcode(zipcode);
+		/*else
+			alert(alert_msg);*/
+
+	});
+
+	$('body').on('click', '#wk_change_zipcode', function () {
+		var cookie_zipcode = CPA.getCookie('zipcode');
+		$(".wk_zipfinder_form").css('display', 'block');
+		$('#wk_zipcode').attr('value', cookie_zipcode);
+		$(".wk_availability_msg").html("");
+		$(".wk_availability_msg").css('display', 'none');
+		//$("[name='add']").removeAttr('disabled');
+	});
+
+	var cookie_zipcode = CPA.getCookie('zipcode');
+
+	if (cookie_zipcode == "") {
+
+		if ($('#wk_zipcode_popup').length > 0) {
+
+			$.ajax
+				({
+					url: CPA.api_url + "index.php?p=zipcode_popup",
+					type: "POST",
+					data: { shop: CPA.shop_name },
+					success: function (result) {
+						$('#wk_zipcode_popup').html(result);
+						console.log(result);
+					},
+					error: function (result) {
+						console.log('something went wrong');
+					}
+				});
+		};
+	} else {
+		$('#wk_zipcode_popup').hide();
+	}
+
+	$("#wk_zipcode_popup").on('click', '.cross_btn', function () {
+
+		if (cookie_zipcode == "") {
+			document.cookie = 'zipcode=""'
+		}
+		$("#wk_zipcode_popup").hide();
+		// window.location.reload();
+	});
+
+	$("#wk_zipcode_popup").on('click', '.global_btn', function () {
+
+		var global_zipcode_input = $(this).siblings('.input_field_div').children('.global_zipcode_input').val();
+		if ($('#wk_zipcode_input').length > 0) {
+			var string = '<div class="zipcode_div"><span class="title">Zipcode </span><input type="text" class="input_field_zipcode" value=' + global_zipcode_input + '></div>';
+			if ($('#wk_zipcode_input').find('.zipcode_div').length > 0) {
+				$('#wk_zipcode_input').html(string);
+			} else {
+				$('#wk_zipcode_input').append(string);
+			}
+		}
+		if (global_zipcode_input.length < 1) {
+			$('.wk_zip_error').show();
+		} else {
+			$('.wk_zip_error').hide();
+			document.cookie = "zipcode=" + global_zipcode_input
+			$("#wk_zipcode_popup").hide();
+			window.location.reload();
+		}
+	});
+
+
+	if (cookie_zipcode == "") {
+	} else {
+		if ($('#wk_zipcode_input').length > 0) {
+			var string = '<div class="zipcode_div"><span class="title">Zipcode </span><input type="text" class="input_field_zipcode" value=' + cookie_zipcode + '></div>';
+			if ($('#wk_zipcode_input').find('.zipcode_div').length > 0) {
+				$('#wk_zipcode_input').html(string);
+			} else {
+				$('#wk_zipcode_input').append(string);
+			}
+		}
+	}
+
+	if ($('#wk_find_zipcode').length != 0) {
+		$('select').on('change', function () {
+			var zip_avail = $('#wk_zip_avail').val();
+			console.log('zip_avail==' + zip_avail);
+			//alert(selectCallback);
+			if (zip_avail != 1) {
+				console.log('hide add to cart');
+				//alert('hide');
+				if ($("[name='add']").length != 0)
+					$("[name='add']").attr('disabled', true);
+				else
+					$("[action*='/cart/add']").find("[type='submit']").attr('disabled', true);
+
+				if ($('.shopify-payment-button__button').length != 0)
+					$('.shopify-payment-button__button').attr('disabled', true);
+			}
+			else {
+				//alert('show');
+				console.log('show add to cart');
+				if ($("[name='add']").length != 0)
+					$("[name='add']").attr('disabled', false);
+				else
+					$("[action*='/cart/add']").find("[type='submit']").attr('disabled', false);
+
+				if ($('.shopify-payment-button__button').length != 0)
+					$('.shopify-payment-button__button').attr('disabled', false);
+			}
+		});
+	}
+
+
+	$('body').find('.zipcode_div > .input_field_zipcode').keyup(function () {
+		if ($('#wk_zipcode_popup').length > 0) {
+			$.ajax
+				({
+					url: CPA.api_url + "index.php?p=zipcode_popup",
+					type: "POST",
+					data: { shop: CPA.shop_name },
+					success: function (result) {
+						$('#wk_zipcode_popup').html(result).show();
+						console.log(result);
+					},
+					error: function (result) {
+						console.log('something went wrong');
+					}
+				});
+		};
+	});
+
+
+}).call(this);

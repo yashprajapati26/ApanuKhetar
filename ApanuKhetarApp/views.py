@@ -43,13 +43,19 @@ def product_details(request,pk):
     product = Product.objects.get(pk=pk)
     cat = product.Category
     more_products = Product.objects.filter(Category=cat)
-    return render(request, 'product_details.html',{'product':product,'more_products':more_products},data)
+    data['product'] = product
+    data['more_products'] = more_products
+    return render(request, 'product_details.html',data)
 
 
 def shoping_cart(request):
     return render(request, 'shoping_cart.html',data)
 
 def shop(request):
+    pk=1
+    cat = Category.objects.get(pk=pk)
+    sub_cat = Sub_Category.objects.filter(Main_Category=cat)
+    data['sub_cat']=sub_cat
     product = Product.objects.all()
     print(product)
     data['products_shop'] = product
@@ -64,8 +70,27 @@ def shop1(request,pk):
     for i in sub_cat:
         sc = i
         break
-    product = Product.objects.filter(Category=sc)
+    try:
+        product = Product.objects.filter(Category=sc)
+        print(product)
+        data['products_shop'] = product
+        return render(request, 'shop.html',data)
+    except:
+        msg = "Products Not Available."
+        data['msg'] = msg
+        return render(request, 'shop.html',data)
+
+def shop2(request,pk):
+    sub = Sub_Category.objects.get(pk=pk)
+    print(sub)
+    cat=sub.Main_Category.Category_Name
+    cat1 = Category.objects.get(Category_Name=cat)
+    sub_cat = Sub_Category.objects.filter(Main_Category=cat1)
+    data['sub_cat']=sub_cat
+    
+    product = Product.objects.filter(Category=sub)
     print(product)
+    
     data['products_shop'] = product
     return render(request, 'shop.html',data)
 
@@ -316,6 +341,7 @@ def mycart(request):
 
 def add_to_cart(request,pk):
     product = Product.objects.get(pk=pk)
+    
     try:
         user = User.objects.get(Email = request.session['email'])
         if user:
@@ -327,11 +353,19 @@ def add_to_cart(request,pk):
                     print(">>Already")
                     return render(request,'shoping_cart.html',{'cart':cart,'msg':msg})
 
-            price=product.Product_Price
-            total_price=product.Product_Price
-            Cart.objects.create(user=user,product=product,price=price,total_price=total_price)
-            print(">>Added To Cart")
-            return redirect('mycart')
+            if request.method == 'POST':
+                vqty = int(request.POST['fqty'])
+                price=product.Product_Price
+                total_price = float(price * vqty)
+                Cart.objects.create(user=user,product=product,qty=vqty,price=price,total_price=total_price)
+                print(">>Added To Cart (qty+)")
+                return redirect('mycart')
+            else:
+                price=product.Product_Price
+                total_price=product.Product_Price
+                Cart.objects.create(user=user,product=product,price=price,total_price=total_price)
+                print(">>Added To Cart")
+                return redirect('mycart')
 
 
     except Exception as e:
@@ -345,3 +379,6 @@ def remove_from_cart(request,pk):
 	cart=Cart.objects.get(pk=pk)
 	cart.delete()
 	return redirect('mycart')
+
+def checkout(request):
+    return render(request, 'checkout.html')

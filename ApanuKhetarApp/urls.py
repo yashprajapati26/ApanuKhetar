@@ -17,7 +17,9 @@ urlpatterns = [
     
     path('shop/',views.shop,name="shop"),
     path('shop1/<int:pk>',views.shop1,name="shop1"),
+    path('shop2/<int:pk>',views.shop2,name="shop2"),
     
+
     path('change_password/',views.change_password,name="change_password"),
     path('forgot_password/',views.forgot_password,name="forgot_password"),
     path('chk_otp_forgot_password/',views.chk_otp_forgot_password,name="chk_otp_forgot_password"),
@@ -33,6 +35,6 @@ urlpatterns = [
     path('remove_from_cart/<int:pk>',views.remove_from_cart,name="remove_from_cart"),
 
     
-
+    path('checkout/',views.checkout,name="checkout"),
     
  ]

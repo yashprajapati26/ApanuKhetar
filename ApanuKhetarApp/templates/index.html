@@ -14,9 +14,10 @@
                             <i class="fa fa-bars"></i>
                             <span>All CATEGORIES</span>
                         </div>
+                        
                         <ul>
                             {% for i in category %}
-                            <li><a href="#">{{i.Category_Name}}</a>
+                            <li><a href="{% url 'shop1' pk=i.pk%}">{{i.Category_Name}}</a>
                                 <!-- <ul>
                                     {% for j in sub_category %}
                                     {% if j.Main_Category.Category_Name == i.Category_Name %}
@@ -27,6 +28,72 @@
                             </li>
                             {% endfor %}
                         </ul>
+                        <br>
+                        <div class="sidebar__item">
+                            <div class="latest-product__text">
+                                <h4>Latest News</h4>
+                                <div class="latest-product__slider owl-carousel">
+                                    <div class="latest-prdouct__slider__item">
+                                        <a href="#" class="latest-product__item">
+                                            <div class="latest-product__item__pic">
+                                                <img src="{% static 'img/latest-product/lp-1.jpg' %}" alt="">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>Crab Pool Security</h6>
+                                                <span>$30.00</span>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="latest-product__item">
+                                            <div class="latest-product__item__pic">
+                                                <img src="img/latest-product/lp-2.jpg" alt="">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>Crab Pool Security</h6>
+                                                <span>$30.00</span>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="latest-product__item">
+                                            <div class="latest-product__item__pic">
+                                                <img src="img/latest-product/lp-3.jpg" alt="">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>Crab Pool Security</h6>
+                                                <span>$30.00</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="latest-prdouct__slider__item">
+                                        <a href="#" class="latest-product__item">
+                                            <div class="latest-product__item__pic">
+                                                <img src="img/latest-product/lp-1.jpg" alt="">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>Crab Pool Security</h6>
+                                                <span>$30.00</span>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="latest-product__item">
+                                            <div class="latest-product__item__pic">
+                                                <img src="img/latest-product/lp-2.jpg" alt="">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>Crab Pool Security</h6>
+                                                <span>$30.00</span>
+                                            </div>
+                                        </a>
+                                        <a href="#" class="latest-product__item">
+                                            <div class="latest-product__item__pic">
+                                                <img src="img/latest-product/lp-3.jpg" alt="">
+                                            </div>
+                                            <div class="latest-product__item__text">
+                                                <h6>Crab Pool Security</h6>
+                                                <span>$30.00</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-9">
@@ -48,6 +115,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div class="hero__item set-bg" data-setbg="{% static 'img/hero/banner.jpg' %}">
                         <div class="hero__text">
                             <span>FRUIT FRESH</span>
@@ -72,7 +140,7 @@
 
                     <div class="col-lg-3">
                         <div class="categories__item set-bg" data-setbg="{{i.sub_cat_image.url}}">
-                            <h5><a href="#">{{i.Sub_Category_Name}}</a></h5>
+                            <h5><a href="{% url 'shop1' pk=i.Main_Category.pk %}">{{i.Sub_Category_Name}}</a></h5>
                         </div>
                     </div>
                 
@@ -135,7 +203,7 @@
                             <li class="active" data-filter="*">All</li>
                             {% for i in category %}
                             {% if forloop.counter != 7 %}
-                            <li data-filter=".oranges">{{i.Category_Name}}</li>
+                            <li><a href="{% url 'shop1' pk=i.pk %}" style="color:#1c1c1c">{{i.Category_Name}}</a></li>
                             {% endif %}
                             {% endfor %}
                         </ul>
@@ -150,7 +218,7 @@
                         <div class="featured__item__pic set-bg" data-setbg="{{i.Product_image_1.url}}">
                             <ul class="featured__item__pic__hover">
                                 <li><a href="{% url 'add_to_wishlist' pk=i.pk %}"><i class="fa fa-heart"></i></a></li>
-                                <!-- <li><a href="#"><i class="fa fa-retweet"></i></a></li> -->
+                                <li><a href="{% url 'product_details' pk=i.pk %}"><i class="fa fa-info-circle"  aria-hidden="true"></i></a></li>
                                 <li><a href="{% url 'add_to_cart' pk=i.pk %}"><i class="fa fa-shopping-cart"></i></a></li>
                             </ul>
                         </div>
