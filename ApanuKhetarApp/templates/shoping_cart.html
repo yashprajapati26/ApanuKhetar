@@ -119,13 +119,21 @@
                                     <td class="shoping__cart__price">
                                         {{i.price}}
                                     </td>
+                                    
+                                   
                                     <td class="shoping__cart__quantity">
+                                        <form action="{% url 'update_qty_in_cart' pk=i.pk %}" method="post">
+                                            {% csrf_token %}
                                         <div class="quantity">
                                             <div class="pro-qty">
-                                                <input type="text" value="{{i.qty}}">
+                                                <input type="number" name="fqty" value="{{i.qty}}"  onchange="this.form.submit()">
                                             </div>
                                         </div>
+                                    </form>
+
                                     </td>
+                                    
+                                    
                                     <td class="shoping__cart__total">
                                         {{i.total_price}}
                                     </td>
@@ -153,7 +161,7 @@
                 <div class="col-lg-12">
                     <div class="shoping__cart__btns">
                         <a href="#" class="primary-btn cart-btn">CONTINUE SHOPPING</a>
-                        <a href="#" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
+                        <a href="" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>
                             Upadate Cart</a>
                     </div>
                 </div>
@@ -172,8 +180,8 @@
                     <div class="shoping__checkout">
                         <h5>Cart Total</h5>
                         <ul>
-                            <li>Subtotal <span>$454.98</span></li>
-                            <li>Total <span>$454.98</span></li>
+                            <li>Subtotal <span>${{net_total}}</span></li>
+                            <li>Total <span>$ {{net_total}}</span></li>
                         </ul>
                         <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
                     </div>

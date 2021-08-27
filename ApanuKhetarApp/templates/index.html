@@ -224,7 +224,17 @@
                         </div>
                         <div class="featured__item__text">
                             <h6><a href="{% url 'product_details' pk=i.pk %}">{{i.Product_Name}}</a></h6>
-                            <h5>$ {{i.Product_Price}}</h5>
+                            {% for j in offer %}
+                                {% if j.product.Product_Name == i.Product_Name %}
+                                    {% if j.offer_status == "Active" %}
+                                        <h5 style="color:green; font-size: 24px;">$ {{i.Product_Price}}</h5>
+                                    <h5>$ {{i.Product_Price}}</h5>
+
+                                    {% endif %}
+                                {% else %}
+                                    <h5>$ {{i.Product_Price}}</h5>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
                 </div>

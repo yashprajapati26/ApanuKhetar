@@ -422,11 +422,11 @@
     
     <div class="container bootstrap snippets bootdey">
         <div class="row">
-            <div class="col-lg-12">
+            <!-- <div class="col-lg-12">
                 {% if msg %}
                 <p class="alert alert-danger">{{msg}}</p>
                 {% endif %}
-            </div>
+            </div> -->
             <div class="profile-nav col-md-3">
                 <div class="panel">
                     <div class="user-heading round">
@@ -449,11 +449,18 @@
                     </ul>
                 </div>
             </div>
+            
             <div class="profile-info col-md-9">
+                <form method="post" action="{% url 'myaccount' %}">
+                    {% csrf_token %}
                 <div class="panel">
-
+                    <div class="col-lg-12">
+                        {% if msg %}
+                        <p class="alert alert-danger">{{msg}}</p>
+                        {% endif %}
+                    </div>
                     <footer class="panel-footer">
-                        <button class="btn btn-warning pull-right">Edit</button>
+                        <button class="btn btn-warning pull-right" type="submit">Save</button>
                     </footer>
                 </div>
                 <div class="panel">
@@ -462,30 +469,31 @@
                         <h1>Personal Information</h1>
                         <div class="row">
                             <div class="bio-row">
-                                <p><span>First Name </span>: {{user.FirstName}}</p>
+                                <p><span>First Name </span>: <input type="text" value="{{user.FirstName}}" name="fname"></p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Last Name </span>: {{user.LastName}}</p>
+                                <p><span>Last Name </span>: <input type="text" value="{{user.LastName}}" name="lname"></p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Country </span>: </p>
+                                <p><span>Country </span>: <input type="text" value="{{user.Country}}" name="fcountry"></p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Birthday</span>: </p>
+                                <p><span>Birthday</span>: <input type="date" value="{{user.DOB}}" name="fDOB"></p>
                             </div>
                             
                             <div class="bio-row">
-                                <p><span>Email </span>: {{user.Email}}</p>
+                                <p><span>Email </span>: <input type="text" value="{{user.Email}}" name="femail" readonly></p>
                             </div>
                             <div class="bio-row">
-                                <p><span>Mobile </span>: </p>
+                                <p><span>Mobile </span>: <input type="text" value="{{user.Mobile}}" name="fmobile"></p>
                             </div>
                            
                         </div>
                     </div>
                 </div>
-               
+                </form>
             </div>
+            
         </div>
     </div>
 

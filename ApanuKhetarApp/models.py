@@ -8,6 +8,9 @@ class User(models.Model):
     LastName = models.CharField(max_length=30)
     Email = models.EmailField(max_length=50)
     Password = models.CharField(max_length=20)
+    DOB = models.DateField(blank=True, null=True)
+    Country = models.CharField(max_length=30,blank=True, null=True)
+    Mobile = models.IntegerField(blank=True,null=True)
     Status = models.CharField(max_length=10,default="Deactive")
 
     def __str__(self):
@@ -83,3 +86,16 @@ class Contact(models.Model):
     def __str__(self):
         return self.Email
 
+class offer(models.Model):
+    CHOICES1 = (
+        ("Active",'Active'),
+        ("Deactive",'Deactive'),
+    )
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    offer_name = models.CharField(max_length=30)
+    offer_status = models.CharField(max_length=10,choices=CHOICES1,default="Active")
+    offer_dicription = models.CharField(max_length=300)
+    offer_Dicount_Percentage = models.CharField(max_length=10)
+    offer_Dicount_Price = models.CharField(max_length=10)
+    start_date = models.DateTimeField(auto_now_add=True)
+    ended_date = models.DateTimeField(auto_now_add=True)

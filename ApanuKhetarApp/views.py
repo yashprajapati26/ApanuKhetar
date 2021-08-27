@@ -9,9 +9,11 @@ data = {}
 category = Category.objects.all()
 sub_category = Sub_Category.objects.all()
 products = Product.objects.all()
+offer = offer.objects.all()
 data['category'] = category
 data['sub_category'] = sub_category
 data['products'] = products
+data['offer'] = offer
 
 
 def index(request):
@@ -74,6 +76,8 @@ def shop1(request,pk):
         product = Product.objects.filter(Category=sc)
         print(product)
         data['products_shop'] = product
+        msg = ""
+        data['msg'] = msg
         return render(request, 'shop.html',data)
     except:
         msg = "Products Not Available."
@@ -103,6 +107,8 @@ def logout(request):
     return render(request,'index.html',data)
 
 def login(request):
+    
+
     if request.method == 'POST':
         Email = request.POST['femail']
         Password = request.POST['fpassword']
@@ -116,6 +122,10 @@ def login(request):
                 request.session['email']=user.Email
                 request.session['total_wishlist']=len(wishlist)
                 request.session['total_cart']=len(cart)
+
+                # print(request.POST['next'])
+                # if 'next' in request.POST:
+                #     return redirect(request.POST['next'])
 
                 print(request.session['email'])
                 return render(request,'index.html',data)
@@ -211,8 +221,30 @@ def check_otp(request):
 
 def myaccount(request):
     user = User.objects.get(Email=request.session['email'])
-    print(user)
-    return render(request,'myaccount.html',{'user':user})
+    
+    if request.method == 'POST':
+        vfname = request.POST['fname']
+        vlname = request.POST['lname']
+        vdob = request.POST['fDOB']
+        vcountry = request.POST['fcountry']
+        vmobile = request.POST['fmobile']
+
+        if vfname != "" and vlname != "":
+            user.FirstName = vfname
+            user.LastName = vlname
+            user.DOB = vdob
+            user.Country = vcountry
+            user.Mobile = vmobile
+            user.save()
+            msg = "Saved Changes"
+            return render(request,'myaccount.html',{'user':user,'msg':msg})
+
+        else:
+            return render(request,'myaccount.html',{'user':user})
+
+    else:
+        print(user)
+        return render(request,'myaccount.html',{'user':user})
 
 def change_password(request):
     user = User.objects.get(Email=request.session['email'])
@@ -320,6 +352,7 @@ def add_to_wishlist(request,pk):
         return render(request, 'login.html',{'msg1':msg},data)
 
 
+
 def remove_from_wishlist(request,pk):
 	wishlist = WishList.objects.get(pk=pk)
 	wishlist.delete()
@@ -330,13 +363,30 @@ def mycart(request):
     try:
         user = User.objects.get(Email = request.session['email'])
         cart=Cart.objects.filter(user=user)
+        net_total = 0 
+        for i in cart:
+            net_total = net_total + int(i.total_price)
         request.session['total_cart']=len(cart)
         print(">>Showing Carts Item")
-        return render(request,'shoping_cart.html',{'cart':cart})
+        return render(request,'shoping_cart.html',{'cart':cart,'net_total':net_total})
     except Exception as e:
         print(">>",e)
         msg = "User Must Be Login for use Cart Features."
         return render(request, 'login.html',{'msg1':msg},data)
+
+def update_qty_in_cart(request,pk):
+    cart = Cart.objects.get(pk=pk)
+    user = User.objects.get(Email=request.session['email'])
+    qty = int(request.POST['fqty'])
+    if qty <= cart.product.Product_Quantity:
+        cart.qty = qty
+        cart.total_price= qty * int(cart.price)
+        cart.save()
+        return redirect('mycart')
+    else:
+        msg="Only "+str(cart.product.Product_Quantity)+" Quantity Left In Stock"
+        return render(request,'shoping_cart.html',{'cart':cart,'msg':msg})
+
 
 
 def add_to_cart(request,pk):

@@ -136,3 +136,4 @@ EMAIL_HOST_USER = 'yashprajapati9327@gmail.com'
 EMAIL_HOST_PASSWORD = 'Yash@9327'
 
 
+DATE_INPUT_FORMATS = ('%d-%m-%Y','%Y-%m-%d')

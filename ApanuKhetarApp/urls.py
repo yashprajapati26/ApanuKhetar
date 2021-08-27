@@ -28,8 +28,10 @@ urlpatterns = [
     path('add_to_wishlist/<int:pk>',views.add_to_wishlist,name="add_to_wishlist"),
     path('mywishlist/',views.mywishlist,name="mywishlist"),
     path('remove_from_wishlist/<int:pk>',views.remove_from_wishlist,name="remove_from_wishlist"),
+    path('update_qty_in_cart/<int:pk>',views.update_qty_in_cart,name="update_qty_in_cart"),
 
 
+    
     path('add_to_cart/<int:pk>',views.add_to_cart,name="add_to_cart"),
     path('mycart/',views.mycart,name="mycart"),
     path('remove_from_cart/<int:pk>',views.remove_from_cart,name="remove_from_cart"),
