@@ -9,16 +9,24 @@ data = {}
 category = Category.objects.all()
 sub_category = Sub_Category.objects.all()
 products = Product.objects.all()
-offer = offer.objects.all()
+offers = offer.objects.all()
 data['category'] = category
 data['sub_category'] = sub_category
 data['products'] = products
-data['offer'] = offer
-
+data['offer'] = offers
+for i in products:
+    for j in offers:
+        if j.product.Product_Name == i.Product_Name:
+            if j.offer_status == "Active":
+                percentage = float(j.offer_Dicount_Percentage)
+                product_price = float(i.Product_Price)
+                offer_dic = float((product_price * percentage)/100)
+                temp = float(product_price - offer_dic)
+                j.offer_Dicount_Price = temp
+                j.save()
 
 def index(request):
     print(data['category'])
-    
     return render(request, 'index.html',data)
 
 def contact(request):
@@ -362,13 +370,31 @@ def remove_from_wishlist(request,pk):
 def mycart(request):
     try:
         user = User.objects.get(Email = request.session['email'])
-        cart=Cart.objects.filter(user=user)
+        cart=Cart.objects.filter(user=user).order_by("-id")
+        print(cart)
         net_total = 0 
+
         for i in cart:
-            net_total = net_total + int(i.total_price)
+            print("A")
+            temp = float(i.after_dicount_price)
+            print(temp)
+            net_total = net_total + temp
+            print(net_total)
+            i.after_dicount_price = i.product.Product_Price
+            for j in offers:
+                if j.product.Product_Name == i.product.Product_Name:
+                    if j.offer_status == "Active":
+                        i.discount_percentage = j.offer_Dicount_Percentage
+                        i.after_dicount_price = j.offer_Dicount_Price
+                        i.save()
+            temp = float(i.after_dicount_price)
+            print(temp)
+            net_total = net_total + temp
+            print(net_total)
+                    
         request.session['total_cart']=len(cart)
         print(">>Showing Carts Item")
-        return render(request,'shoping_cart.html',{'cart':cart,'net_total':net_total})
+        return render(request,'shoping_cart.html',{'cart':cart,'net_total':net_total,'offer':offers})
     except Exception as e:
         print(">>",e)
         msg = "User Must Be Login for use Cart Features."
@@ -380,12 +406,12 @@ def update_qty_in_cart(request,pk):
     qty = int(request.POST['fqty'])
     if qty <= cart.product.Product_Quantity:
         cart.qty = qty
-        cart.total_price= qty * int(cart.price)
+        cart.total_price= qty * float(cart.price)
         cart.save()
         return redirect('mycart')
     else:
         msg="Only "+str(cart.product.Product_Quantity)+" Quantity Left In Stock"
-        return render(request,'shoping_cart.html',{'cart':cart,'msg':msg})
+        return render(request,'shoping_cart.html',{'cart':cart,'msg':msg,'offer':offers})
 
 
 
@@ -401,18 +427,34 @@ def add_to_cart(request,pk):
                     msg="Product is Already In Your Cart."
                     request.session['total_cart']=len(cart)
                     print(">>Already")
-                    return render(request,'shoping_cart.html',{'cart':cart,'msg':msg})
+                    return render(request,'shoping_cart.html',{'cart':cart,'msg':msg,'offer':offers})
 
             if request.method == 'POST':
                 vqty = int(request.POST['fqty'])
-                price=product.Product_Price
+                price=float(product.Product_Price)
                 total_price = float(price * vqty)
+
+                for i in offers:
+                    if i.product.Product_Name == product.Product_Name:
+                        if i.offer_status == "Active":
+                            temp = float(i.offer_Dicount_Price)
+                            total_price = float(temp * vqty)
+
+
+
                 Cart.objects.create(user=user,product=product,qty=vqty,price=price,total_price=total_price)
                 print(">>Added To Cart (qty+)")
                 return redirect('mycart')
             else:
                 price=product.Product_Price
                 total_price=product.Product_Price
+
+                for i in offers:
+                    if i.product.Product_Name == product.Product_Name:
+                        if i.offer_status == "Active":
+                            price = i.offer_Dicount_Price
+                            total_price = i.offer_Dicount_Price
+
                 Cart.objects.create(user=user,product=product,price=price,total_price=total_price)
                 print(">>Added To Cart")
                 return redirect('mycart')

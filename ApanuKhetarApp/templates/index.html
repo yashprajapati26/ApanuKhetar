@@ -227,14 +227,14 @@
                             {% for j in offer %}
                                 {% if j.product.Product_Name == i.Product_Name %}
                                     {% if j.offer_status == "Active" %}
-                                        <h5 style="color:green; font-size: 24px;">$ {{i.Product_Price}}</h5>
-                                    <h5>$ {{i.Product_Price}}</h5>
-
+                                        <span style="color:green; font-size: 24px; font-weight: bold;">$ {{j.offer_Dicount_Price}}</span>
+                                    
                                     {% endif %}
-                                {% else %}
-                                    <h5>$ {{i.Product_Price}}</h5>
+                                
                                 {% endif %}
                             {% endfor %}
+                            <span style="font-weight: bold;">$ {{i.Product_Price}}</span>
+
                         </div>
                     </div>
                 </div>

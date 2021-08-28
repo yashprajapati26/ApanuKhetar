@@ -59,7 +59,23 @@
                             <i class="fa fa-star-half-o"></i>
                             <span>(18 reviews)</span>
                         </div>
+
+                            {% for j in offer %}
+                                {% if j.product.Product_Name == product.Product_Name %}
+                                    {% if j.offer_status == "Active" %}
+
+                                        <span style="color:green; font-size: 34px; font-weight: bold;">$ {{j.offer_Dicount_Price}}</span>
+                                        <span>( {{j.offer_name}} {{j.offer_Dicount_Percentage}} % off )</span>
+
+                                    {% endif %}
+                                
+                                {% endif %}
+                            {% endfor %}
+                        <!-- <span style="font-weight: bold;">$ {{i.Product_Price}}</span> -->
                         <div class="product__details__price">${{product.Product_Price}}</div>
+
+
+
                         <p>{{product.Product_Desc}}</p>
                         <div class="product__details__quantity">
                             <div class="quantity">

@@ -46,12 +46,6 @@ class Product(models.Model):
     Product_image_2=models.ImageField(upload_to='Product_Images/',null=True,blank=True,default="default.jpg")
     Product_image_3=models.ImageField(upload_to='Product_Images/',null=True,blank=True)
     Product_image_4=models.ImageField(upload_to='Product_Images/',null=True,blank=True)
-    Discount_Percentage = models.FloatField(null=True,blank=True)
-    Discount_Amount = models.FloatField(null=True,blank=True)
-    After_Discount = models.FloatField(null=True,blank=True)
-    Tax_Percentage = models.FloatField(null=True,blank=True)
-    Tax_Amount = models.FloatField(null=True,blank=True)
-    Final_Amount = models.FloatField(null=True,blank=True)
 
     def __str__(self):
         return self.Product_Name + " | " + self.Category.Main_Category.Category_Name + " > " + self.Category.Sub_Category_Name
@@ -71,7 +65,10 @@ class Cart(models.Model):
     added_date=models.DateTimeField(default=timezone.now)
     qty=models.CharField(max_length=100,default="1")
     price=models.CharField(max_length=100,default="")
-    total_price=models.CharField(max_length=100,default="")
+    discount_percentage = models.CharField(max_length=10,default="0")
+    after_dicount_price = models.CharField(max_length=10,default="0")
+
+    total_price=models.CharField(max_length=100,default="0")
     status=models.CharField(max_length=10,default="pending")
 
     def __str__(self):
@@ -96,6 +93,6 @@ class offer(models.Model):
     offer_status = models.CharField(max_length=10,choices=CHOICES1,default="Active")
     offer_dicription = models.CharField(max_length=300)
     offer_Dicount_Percentage = models.CharField(max_length=10)
-    offer_Dicount_Price = models.CharField(max_length=10)
+    offer_Dicount_Price = models.CharField(max_length=10) #Here Save Price After discount
     start_date = models.DateTimeField(auto_now_add=True)
     ended_date = models.DateTimeField(auto_now_add=True)
