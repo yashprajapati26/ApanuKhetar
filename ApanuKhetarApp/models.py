@@ -11,6 +11,8 @@ class User(models.Model):
     DOB = models.DateField(blank=True, null=True)
     Country = models.CharField(max_length=30,blank=True, null=True)
     Mobile = models.IntegerField(blank=True,null=True)
+    Address = models.CharField(max_length=300,null=True,blank=True)
+    Shipping_Address = models.CharField(max_length=300,null=True,blank=True)
     Status = models.CharField(max_length=10,default="Deactive")
 
     def __str__(self):

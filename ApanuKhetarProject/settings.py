@@ -137,3 +137,7 @@ EMAIL_HOST_PASSWORD = 'Yash@9327'
 
 
 DATE_INPUT_FORMATS = ('%d-%m-%Y','%Y-%m-%d')
+
+# Razor Pay key
+RAZORPAY_API_KEY = "rzp_test_qmhD1HyAJTaQrl"
+RAZORPAY_API_SECRET_KEY = "gMRA6QjlM7BhLWjFkwLeAVwI"

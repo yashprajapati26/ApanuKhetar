@@ -38,5 +38,8 @@ urlpatterns = [
 
     
     path('checkout/',views.checkout,name="checkout"),
+    path('pay/',views.pay,name="pay"),
+    path('invoice/',views.invoice,name="invoice"),
+
     
  ]

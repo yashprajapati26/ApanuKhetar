@@ -2,7 +2,8 @@ from django.shortcuts import render,redirect
 from . models import *
 from . utils import *
 from random import *
-
+from ApanuKhetarProject.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY
+import razorpay
 # Create your views here.
 
 data = {}
@@ -375,22 +376,22 @@ def mycart(request):
         net_total = 0 
 
         for i in cart:
-            print("A")
-            temp = float(i.after_dicount_price)
-            print(temp)
-            net_total = net_total + temp
-            print(net_total)
             i.after_dicount_price = i.product.Product_Price
+            print("A")
+            
             for j in offers:
                 if j.product.Product_Name == i.product.Product_Name:
                     if j.offer_status == "Active":
                         i.discount_percentage = j.offer_Dicount_Percentage
                         i.after_dicount_price = j.offer_Dicount_Price
                         i.save()
-            temp = float(i.after_dicount_price)
+            
+            # count netprice 
+            temp = float(i.total_price)
             print(temp)
             net_total = net_total + temp
             print(net_total)
+            i.save()
                     
         request.session['total_cart']=len(cart)
         print(">>Showing Carts Item")
@@ -406,8 +407,10 @@ def update_qty_in_cart(request,pk):
     qty = int(request.POST['fqty'])
     if qty <= cart.product.Product_Quantity:
         cart.qty = qty
-        cart.total_price= qty * float(cart.price)
+        cart.total_price= qty * float(cart.after_dicount_price)
+        print(cart.total_price)
         cart.save()
+        print("Go To MyCart")
         return redirect('mycart')
     else:
         msg="Only "+str(cart.product.Product_Quantity)+" Quantity Left In Stock"
@@ -473,4 +476,58 @@ def remove_from_cart(request,pk):
 	return redirect('mycart')
 
 def checkout(request):
-    return render(request, 'checkout.html')
+    user = User.objects.get(Email=request.session['email'])
+    cart = Cart.objects.filter(user=user,status="pending")
+    net_total1 = 0
+    for i in cart:
+        temp = float(i.total_price)
+        net_total1 = float(net_total1 + temp)            
+    return render(request, 'checkout.html',{'cart':cart,'user':user,'net_total':net_total1})
+
+
+client = razorpay.Client(auth=(RAZORPAY_API_KEY,RAZORPAY_API_SECRET_KEY))
+
+
+def pay(request):
+    user = User.objects.get(Email=request.session['email'])
+    cart = Cart.objects.filter(user=user,status="pending")
+    if request.method == "POST":
+        vfname = request.POST['ffname']
+        vlname = request.POST['flname']
+        vcountry = request.POST['fcountry']
+        vaddress = request.POST['faddress']
+        vmno = request.POST['fmno']
+        vpayment_method = request.POST['payment_method']
+        
+        if vfname != "" and vlname!= "" and vcountry != "" and vaddress != "" and vmno != "":
+            user.FirstName = vfname
+            user.LastName = vlname
+            user.Address = vaddress
+            user.Mobile = vmno
+            user.Country = vcountry
+            user.save()
+
+            Email = user.Email
+            email_Subject = "Order Sucessfully Done"
+            net_total1 = 0
+            for i in cart:
+                temp = float(i.total_price)
+                net_total1 = float(net_total1 + temp) 
+                
+            if vpayment_method == "Online": 
+                sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName})
+                 
+                order_amount = int(net_total1)
+                order_currency = "INR"
+                payment_order = client.order.create(dict(amount=order_amount*100,currency=order_currency,payment_capture=1))
+                payment_order_id = payment_order['id']
+                return render(request,'pay.html',{'amount':order_amount,'payment_order':payment_order,'user':user,'sub_total':net_total1})
+
+            else:
+                sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName})
+                return render(request,'invoice.html',{'user':user,'cart':cart})
+
+        return render(request, 'checkout.html',{'cart':cart,'user':user})
+
+def invoice(request):
+    return render(request,'invoice.html')
