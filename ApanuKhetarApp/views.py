@@ -479,10 +479,15 @@ def checkout(request):
     user = User.objects.get(Email=request.session['email'])
     cart = Cart.objects.filter(user=user,status="pending")
     net_total1 = 0
+    tax_percentage = 5
+    tax = 0
     for i in cart:
         temp = float(i.total_price)
-        net_total1 = float(net_total1 + temp)            
-    return render(request, 'checkout.html',{'cart':cart,'user':user,'net_total':net_total1})
+        net_total1 = float(net_total1 + temp)    
+
+    tax = float(net_total1 * tax_percentage)
+    net_total2 = net_total1 + tax          
+    return render(request, 'checkout.html',{'cart':cart,'user':user,'net_total':net_total2,'sub_total':net_total1,'tax':tax})
 
 
 client = razorpay.Client(auth=(RAZORPAY_API_KEY,RAZORPAY_API_SECRET_KEY))
@@ -491,6 +496,7 @@ client = razorpay.Client(auth=(RAZORPAY_API_KEY,RAZORPAY_API_SECRET_KEY))
 def pay(request):
     user = User.objects.get(Email=request.session['email'])
     cart = Cart.objects.filter(user=user,status="pending")
+    print(cart)
     if request.method == "POST":
         vfname = request.POST['ffname']
         vlname = request.POST['flname']
@@ -507,27 +513,62 @@ def pay(request):
             user.Country = vcountry
             user.save()
 
-            Email = user.Email
-            email_Subject = "Order Sucessfully Done"
+            
             net_total1 = 0
+            tax_percentage = 5
+            tax = 0
             for i in cart:
                 temp = float(i.total_price)
                 net_total1 = float(net_total1 + temp) 
-                
+
+            tax = float(net_total1 * tax_percentage)
+            net_total2 = net_total1 + tax    
+
             if vpayment_method == "Online": 
-                sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName})
                  
-                order_amount = int(net_total1)
+                order_amount = int(net_total2)
                 order_currency = "INR"
                 payment_order = client.order.create(dict(amount=order_amount*100,currency=order_currency,payment_capture=1))
                 payment_order_id = payment_order['id']
-                return render(request,'pay.html',{'amount':order_amount,'payment_order':payment_order,'user':user,'sub_total':net_total1})
+                return render(request,'pay.html',{'amount':order_amount,'payment_order':payment_order,'user':user})
 
             else:
+                Email = user.Email
+                email_Subject = "Order Sucessfully Done[cash on dilivery]"
                 sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName})
-                return render(request,'invoice.html',{'user':user,'cart':cart})
+                return render(request,'invoice.html',{'user':user,'cart':cart,'net_total':net_total1})
 
         return render(request, 'checkout.html',{'cart':cart,'user':user})
 
 def invoice(request):
-    return render(request,'invoice.html')
+    user = User.objects.get(Email=request.session['email'])
+    cart = Cart.objects.filter(user=user,status="pending")
+    print(cart)
+    Razorpay_order_id = request.POST['razorpay_order_id']
+    Razorpay_payment_id = request.POST['razorpay_payment_id']
+    Razorpay_signature =  request.POST['razorpay_signature']
+    net_price  = request.POST['amount'] 
+
+    client = razorpay.Client(auth=(RAZORPAY_API_KEY,RAZORPAY_API_SECRET_KEY))
+    verification = {
+		'razorpay_order_id': request.POST['razorpay_order_id'],
+		'razorpay_payment_id': request.POST['razorpay_payment_id'],
+		'razorpay_signature': request.POST['razorpay_signature']
+	}
+
+    try:
+        Email = user.Email
+        email_Subject = "Order Sucessfully Done.[online payment]"
+        status = client.utility.verify_payment_signature(verification)
+        sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName})
+        for i in cart:
+            print(i)
+            i.status = "Done"
+            i.save()
+            return render(request,'invoice.html',{'net_total':net_price,'cart':cart,'user':user})
+    except Exception as e:
+        print(e)
+        msg ="Please Try Again.Somothing was Wrong! "
+        return render (request,'checkout.html',{'msg':msg,'user':user,'cart':cart,'net_total':net_price})
+        
+

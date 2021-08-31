@@ -252,7 +252,7 @@
 
 
 
-                                <h1 class="invoice-id">INVOICE 3-2-1</h1>
+                                <h3 class="invoice-id">INVOICE 3-2-1</h3>
                                 <div class="date">Date of Invoice: 01/10/2018</div>
                                 <div class="date">Due Date: 30/10/2018</div>
 
@@ -280,9 +280,9 @@
                                     <td class="text-left">
                                         <h3>
                                             <p>
-                                                {{i.product.Product_Name}}[{{i.color}}],<br>SIZE :{{i.size}}<br>
+                                                {{i.product.Product_Name}},<br>BRAND :{{i.product.Product_Brand_Name}}<br>
 
-                                                CATEGORY : {{i.product.Product_category}}
+                                                CATEGORY : {{i.product.Category.Main_Category.Category_Name}}
                                             </p>
                                         </h3>
                                         <a target="_blank"
@@ -291,7 +291,7 @@
                                         </a>
                                         to improve your Javascript skills. Subscribe and stay tuned :)
                                     </td>
-                                    <td class="unit">{{i.product.Product_price}}</td>
+                                    <td class="unit">{{i.after_dicount_price}}</td>
                                     <td class="qty">{{i.qty}}</td>
                                     <td class="total">{{i.total_price}}</td>
                                 </tr>
@@ -311,7 +311,7 @@
                                 <tr>
                                     <td colspan="2"></td>
                                     <td colspan="2">GRAND TOTAL</td>
-                                    <td>{{grend_total}}</td>
+                                    <td>{{net_total}}</td>
                                 </tr>
                             </tfoot>
                         </table>
