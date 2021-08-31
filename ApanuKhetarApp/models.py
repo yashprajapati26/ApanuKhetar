@@ -98,3 +98,15 @@ class offer(models.Model):
     offer_Dicount_Price = models.CharField(max_length=10) #Here Save Price After discount
     start_date = models.DateTimeField(auto_now_add=True)
     ended_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.offer_name
+
+class news(models.Model):
+
+    Title = models.CharField(max_length=50)
+    Discription = models.CharField(max_length=500)
+    added_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return self.Title
