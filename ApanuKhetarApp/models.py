@@ -8,7 +8,6 @@ class User(models.Model):
     LastName = models.CharField(max_length=30)
     Email = models.EmailField(max_length=50)
     Password = models.CharField(max_length=20)
-    DOB = models.DateField(blank=True, null=True)
     Country = models.CharField(max_length=30,blank=True, null=True)
     Mobile = models.IntegerField(blank=True,null=True)
     Address = models.CharField(max_length=300,null=True,blank=True)
@@ -98,6 +97,7 @@ class offer(models.Model):
     offer_Dicount_Price = models.CharField(max_length=10) #Here Save Price After discount
     start_date = models.DateTimeField(auto_now_add=True)
     ended_date = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return self.offer_name

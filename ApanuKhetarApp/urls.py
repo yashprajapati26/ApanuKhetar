@@ -5,6 +5,7 @@ urlpatterns = [
     path('',views.index,name="index"),
     path('contact/',views.contact,name="contact"),
     path('blog/',views.blog,name="blog"),
+    path('blog_details/',views.blog_details,name="blog_details"),
     path('login/',views.login,name="login"),
     path('logout/',views.logout,name="logout"),
     path('myaccount/',views.myaccount,name="myaccount"),
@@ -12,9 +13,9 @@ urlpatterns = [
     path('check_otp/',views.check_otp,name="check_otp"),
     path('product_details/',views.product_details,name="product_details"),
     path('myorder/',views.myorder,name="myorder"),
-
     path('product_details/<int:pk>',views.product_details,name="product_details"),
     path('shoping_cart/',views.shoping_cart,name="shoping_cart"),
+    path('search_product/',views.search_product,name="search_product"),
     
     path('shop/',views.shop,name="shop"),
     path('shop1/<int:pk>',views.shop1,name="shop1"),
@@ -44,3 +45,4 @@ urlpatterns = [
 
     
  ]
+ 

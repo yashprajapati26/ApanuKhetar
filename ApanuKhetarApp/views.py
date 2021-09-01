@@ -4,6 +4,9 @@ from . utils import *
 from random import *
 from ApanuKhetarProject.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY
 import razorpay
+from django.core.mail import send_mail
+from django.db.models import Q
+
 # Create your views here.
 
 data = {}
@@ -11,10 +14,12 @@ category = Category.objects.all()
 sub_category = Sub_Category.objects.all()
 products = Product.objects.all()
 offers = offer.objects.all()
+News = news.objects.all()
 data['category'] = category
 data['sub_category'] = sub_category
 data['products'] = products
 data['offer'] = offers
+data['news'] = News
 for i in products:
     for j in offers:
         if j.product.Product_Name == i.Product_Name:
@@ -42,6 +47,9 @@ def contact(request):
 
     else:
         return render(request, 'contact.html',data)
+
+def blog_details(request):
+    return render(request, 'blog_details.html',data)
 
 def blog(request):
     return render(request, 'blog.html',data)
@@ -231,24 +239,36 @@ def check_otp(request):
     else:
         return render(request,'otp_signup.html',data)
 
+
+def search_product(request):
+    if request.method == 'POST':
+        search=request.POST['fsearch']
+        search_list=Product.objects.filter(Q(Product_Name__contains=search) | Q(Category__Sub_Category_Name__contains=search))
+        data['search_list'] = search_list
+        return render(request,'search_product.html',data)
+
+
+
 def myaccount(request):
     user = User.objects.get(Email=request.session['email'])
     
     if request.method == 'POST':
         vfname = request.POST['fname']
         vlname = request.POST['lname']
-        vdob = request.POST['fDOB']
+        # vdob = request.POST['fDOB']
         vcountry = request.POST['fcountry']
         vmobile = request.POST['fmobile']
 
         if vfname != "" and vlname != "":
             user.FirstName = vfname
             user.LastName = vlname
-            user.DOB = vdob
+            # user.DOB = vdob
             user.Country = vcountry
             user.Mobile = vmobile
             user.save()
             msg = "Saved Changes"
+            del  request.session['name']
+            request.session['name']=user.FirstName
             return render(request,'myaccount.html',{'user':user,'msg':msg})
 
         else:
@@ -502,8 +522,6 @@ def pay(request):
     cart = Cart.objects.filter(user=user,status="pending")
     print(cart)
 
-
-
     if request.method == "POST":
         vfname = request.POST['ffname']
         vlname = request.POST['flname']
@@ -537,6 +555,7 @@ def pay(request):
             net_total = sub_total + tax    
 
             if vpayment_method == "Online": 
+                
                 order_amount = int(net_total)
                 order_currency = "INR"
                 payment_order = client.order.create(dict(amount=order_amount*100,currency=order_currency,payment_capture=1))
@@ -544,6 +563,13 @@ def pay(request):
                 return render(request,'pay.html',{'amount':order_amount,'payment_order':payment_order,'user':user,'sub_total':sub_total,'tax':tax})
 
             else:
+                for i in cart:
+                    i.product.Product_Quantity = int(i.product.Product_Quantity)-int(i.qty)
+                    i.product.save()
+                    if i.product.Product_Quantity == 0:
+                        i.product.Product_Stock == "Out of Stock"
+                        i.product.save()
+
                 Email = user.Email
                 email_Subject = "Order Sucessfully Done[cash on dilivery]"
                 for i in cart:
@@ -584,8 +610,21 @@ def invoice(request):
         for i in cart:
             print(i)
             i.status = "Done"
+            i.product.Product_Quantity = int(i.product.Product_Quantity)-int(i.qty)
+            i.product.save()
             i.save()
-            return render(request,'invoice.html',{'net_total':net_total,'cart':cart,'user':user,'tax':tax,'sub_total':sub_total})
+            if i.product.Product_Quantity == 0:
+                i.product.Product_Stock == "Out of Stock"
+                i.product.save()
+
+        del request.session['total_cart']
+        cart1 = Cart.objects.filter(user=user,status="pending")
+        request.session['total_cart']=len(cart1)
+            
+            
+
+        return render(request,'invoice.html',{'net_total':net_total,'cart':cart,'user':user,'tax':tax,'sub_total':sub_total})
+            
     except Exception as e:
         print(e)
         msg ="Please Try Again.Somothing was Wrong! "
