@@ -35,6 +35,7 @@
                                 <div class="latest-product__slider owl-carousel">
                                     <div class="latest-prdouct__slider__item">
                                         {% for i in news %}
+                                        {% if forloop.counter != 3 %}
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
                                                 <img src="{% static 'img/latest-product/lp-1.jpg' %}" alt="">
@@ -44,6 +45,7 @@
                                                 <p>{{i.added_date}}</p>
                                             </div>
                                         </a>
+                                         {% endif %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -53,15 +55,17 @@
     
                                 <div class="blog__sidebar__recent">
                                     {% for i in news %}
+                                    {% if forloop.counter <= 3 %}
                                     <a href="#" class="blog__sidebar__recent__item">
                                         <div class="blog__sidebar__recent__item__pic">
                                             <img src="{% static 'img/blog/sidebar/sr-1.jpg' %}" alt="">
                                         </div>
                                         <div class="blog__sidebar__recent__item__text">
-                                            <h5><b>{{i.Title}}</b></h5><p>{{i.Discription}}</p>
+                                            <h5><b>{{i.Title}}</b></h5><h6>{{i.Discription}}</h6> 
                                             <span>{{i.added_date}}</span>
                                         </div>
                                     </a>
+                                    {% endif %}
                                      {% endfor %}
                                 </div>
                             </div>
@@ -83,7 +87,7 @@
                                 <i class="fa fa-phone"></i>
                             </div>
                             <div class="hero__search__phone__text">
-                                <h5>+91 9327561065</h5>
+                                <h5>+91 79489 91976</h5>
                                 <span>support 24/7 time</span>
                             </div>
                         </div>
@@ -103,66 +107,7 @@
     </section>
     <!-- Hero Section End -->
 
-    <!-- Categories Section Begin -->
-    <section class="categories">
-        <div class="container">
-            <div class="row">
-                <div class="categories__slider owl-carousel">
-                    {% for i in sub_category %}
-                    
-
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{{i.sub_cat_image.url}}">
-                            <h5><a href="{% url 'shop1' pk=i.Main_Category.pk %}">{{i.Sub_Category_Name}}</a></h5>
-                        </div>
-                    </div>
-                
-                   
-                    {% endfor %}
-                </div>
-                
-                <!-- <div class="categories__slider owl-carousel" style="padding-top:5px;">
-                    {% for i in sub_category %}
-                    {% if i.Main_Category.Category_Name == "Fertilisers" %}
-
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{{i.sub_cat_image.url}}">
-                            <h5><a href="#">{{i.Sub_Category_Name}}</a></h5>
-                        </div>
-                    </div>
-                
-                    {% endif %}
-                    {% endfor %}
-                </div> -->
-
-
-               
-                <!-- <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-2.jpg' %}">
-                            <h5><a href="#">Dried Fruit</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-3.jpg' %}">
-                            <h5><a href="#">Vegetables</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-4.jpg' %}">
-                            <h5><a href="#">drink fruits</a></h5>
-                        </div>
-                    </div>
-                    <div class="col-lg-3">
-                        <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-5.jpg' %}">
-                            <h5><a href="#">drink fruits</a></h5>
-                        </div>
-                    </div> -->
-            
-        </div>
-        </div>
-    </section>
-    <!-- Categories Section End -->
-
+   
     <!-- Featured Section Begin -->
     <section class="featured spad">
         <div class="container">
@@ -175,7 +120,7 @@
                         <ul>
                             <li class="active" data-filter="*">All</li>
                             {% for i in category %}
-                            {% if forloop.counter != 7 %}
+                            {% if forloop.counter <= 7 %}
                             <li><a href="{% url 'shop1' pk=i.pk %}" style="color:#1c1c1c">{{i.Category_Name}}</a></li>
                             {% endif %}
                             {% endfor %}
@@ -185,7 +130,7 @@
             </div>
             <div class="row featured__filter">
                 {% for i in products %}
-                {% if forloop.counter != 16 %}
+                {% if forloop.counter <= 16 %}
                 <div class="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
                     <div class="featured__item">
                         <div class="featured__item__pic set-bg" data-setbg="{{i.Product_image_1.url}}">
@@ -198,15 +143,18 @@
                         <div class="featured__item__text">
                             <h6><a href="{% url 'product_details' pk=i.pk %}">{{i.Product_Name}}</a></h6>
                             {% for j in offer %}
+
                                 {% if j.product.Product_Name == i.Product_Name %}
                                     {% if j.offer_status == "Active" %}
-                                        <span style="color:green; font-size: 24px; font-weight: bold;">$ {{j.offer_Dicount_Price}}</span>
-                                    
+                                    {% if now <= j.ended_date %}
+                                        <span style="color:green; font-size: 24px; font-weight: bold;">&#x20b9;  {{j.offer_Dicount_Price}}</span>
+                                    {% endif %}
+                
                                     {% endif %}
                                 
                                 {% endif %}
                             {% endfor %}
-                            <span style="font-weight: bold;">$ {{i.Product_Price}}</span>
+                            <span style="font-weight: bold;">&#x20b9;  {{i.Product_Price}}</span>
 
                         </div>
                     </div>
@@ -342,6 +290,66 @@
         </div>
     </div>
     <!-- Banner End -->
+ <!-- Categories Section Begin -->
+ <section class="categories">
+    <div class="container">
+        <div class="row">
+            
+            <div class="categories__slider owl-carousel">
+                {% for i in sub_category %}
+                
+
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="{{i.sub_cat_image.url}}">
+                        <h5><a href="{% url 'shop1' pk=i.Main_Category.pk %}">{{i.Sub_Category_Name}}</a></h5>
+                    </div>
+                </div>
+            
+               
+                {% endfor %}
+            </div>
+            
+            <!-- <div class="categories__slider owl-carousel" style="padding-top:5px;">
+                {% for i in sub_category %}
+                {% if i.Main_Category.Category_Name == "Fertilisers" %}
+
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="{{i.sub_cat_image.url}}">
+                        <h5><a href="#">{{i.Sub_Category_Name}}</a></h5>
+                    </div>
+                </div>
+            
+                {% endif %}
+                {% endfor %}
+            </div> -->
+
+
+           
+            <!-- <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-2.jpg' %}">
+                        <h5><a href="#">Dried Fruit</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-3.jpg' %}">
+                        <h5><a href="#">Vegetables</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-4.jpg' %}">
+                        <h5><a href="#">drink fruits</a></h5>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    <div class="categories__item set-bg" data-setbg="{% static 'img/categories/cat-5.jpg' %}">
+                        <h5><a href="#">drink fruits</a></h5>
+                    </div>
+                </div> -->
+        
+    </div>
+    </div>
+</section>
+<!-- Categories Section End -->
 
 
     {% if offer %}
@@ -357,6 +365,9 @@
             </div>
             <div class="row">
                 {% for i in offer %}
+              
+                {% if now <= i.ended_date %}
+
                 <div class="col-lg-4 col-md-4 col-sm-6">
                     <div class="blog__item">
                         <div class="blog__item__pic">
@@ -367,11 +378,13 @@
                                 <li><i class="fa fa-calendar-o"></i> {{i.start_date}} </li> 
                                
                             </ul>
-                            <h5><a href="#">{{i.offer_name}}</a></h5>
+                            <h5><a href="{% url 'product_details' pk=i.product.pk %}">{{i.offer_name}}</a></h5>
+                            <p>{{i.ended_date}}</p>
                             <p>{{i.offer_dicription}}</p>
                         </div>
                     </div>
                 </div>
+                {% endif %}
                 {% endfor %}
                 <!-- <div class="col-lg-4 col-md-4 col-sm-6">
                     <div class="blog__item">

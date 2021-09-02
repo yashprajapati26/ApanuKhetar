@@ -8,7 +8,7 @@
     <meta name="keywords" content="Ogani, unica, creative, html">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Apanu Khetar</title>
+    <title>apanu Khetar</title>
 
     <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
@@ -22,6 +22,9 @@
     <link rel="stylesheet" href="{% static 'css/owl.carousel.min.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'css/slicknav.min.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
+
+    <!-- favicon  -->
+    <link rel="icon" href="{% static 'img/favicon.png' %}" type="image/png">
 </head>
 
 
@@ -43,7 +46,7 @@
                             <div class="header__top__left">
                                 <ul>
                                     <li><i class="fa fa-envelope"></i> infoapanukhetar@gmail.com</li>
-                                    <li>Free Shipping for all Order of $99</li>
+                                    <li>Free Shipping for all Order of Rs.99</li>
                                 </ul>
                             </div>
                         </div>
@@ -88,11 +91,11 @@
                 <div class="row">
                     <div class="col-lg-3">
                         <div class="header__logo">
-                            <a href="./index.html"><img src="{% static 'img/logo.png' %}" alt=""></a>
+                            <a href="{% url 'index' %}"><img src="{% static 'img/logo.png' %}" alt="" style="padding-left: 50px;;"></a>
                         </div>
                     </div>
                     <div class="col-lg-6">
-                        <nav class="header__menu">
+                        <nav class="header__menu" style="padding-left: 80px">
                             <ul>
                                 <li class="active"><a href="{% url 'index' %}">Home</a></li>
                                 <!-- <li><a href="#">Categories</a></li>
@@ -111,14 +114,14 @@
                                         {% endfor %}
                                     </ul>
                                 </li> -->
-                                <li><a href="#">Pages</a>
+                                <!-- <li><a href="#">Pages</a>
                                     <ul class="header__menu__dropdown">
                                         <li><a href="{% url 'product_details' %}">Product Details</a></li>
                                         <li><a href="{% url 'shoping_cart' %}">Shoping Cart</a></li>
                                         <li><a href="{% url 'checkout' %}">Check Out</a></li>
                                         <li><a href="{% url 'blog_details' %}">Blog Details</a></li>
                                     </ul>
-                                </li>
+                                </li> -->
                                 <li><a href="{% url 'blog' %}">Blog</a></li>
                                 <li><a href="{% url 'contact' %}">Contact</a></li>
                             </ul>
@@ -157,7 +160,8 @@
                             <a href="./index.html"><img src="{% static 'img/logo.png' %} " alt=""></a>
                         </div>
                         <ul>
-                            <li>Address: </li>
+                        
+                        </li>
                             <li>Phone: +91 9327561065</li>
                             <li>Email:  infoapanukhetar@gmail.com</li>
                         </ul>
@@ -175,7 +179,7 @@
                         </ul>
                         <ul>
                             <li><a href="#">Who We Are</a></li>
-                            <li><a href="#">Our Services</a></li>
+                            <li><a href="{% url 'shop' %}">Our Services</a></li>
                             <li><a href="#">Projects</a></li>
                             <li><a href="#">Contact</a></li>
                             
@@ -203,9 +207,9 @@
                 <div class="col-lg-12">
                     <div class="footer__copyright">
                         <div class="footer__copyright__text"><p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+  Copyright &copy;<script>document.write(new Date().getFullYear());</script> All rights reserved <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Agog Technologies</a>
   <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. --></p></div>
-                        <div class="footer__copyright__payment"><img src="{% static 'img/payment-item.png' %} " alt=""></div>
+                        <!-- <div class="footer__copyright__payment"><img src="{% static 'img/payment-item.png' %} " alt=""></div> -->
                     </div>
                 </div>
             </div>

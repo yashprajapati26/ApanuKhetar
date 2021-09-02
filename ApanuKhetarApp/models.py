@@ -95,18 +95,27 @@ class offer(models.Model):
     offer_dicription = models.CharField(max_length=300)
     offer_Dicount_Percentage = models.CharField(max_length=10)
     offer_Dicount_Price = models.CharField(max_length=10) #Here Save Price After discount
-    start_date = models.DateTimeField(auto_now_add=True)
-    ended_date = models.DateTimeField(auto_now_add=True)
+    start_date = models.DateTimeField()
+    ended_date = models.DateTimeField()
 
 
     def __str__(self):
         return self.offer_name
 
 class news(models.Model):
-
     Title = models.CharField(max_length=50)
     Discription = models.CharField(max_length=500)
     added_date = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return self.Title
+    
+class Feedback(models.Model):
+    Fname = models.CharField(max_length=50)
+    Email = models.EmailField(max_length=50)
+    product = models.ForeignKey(Product,on_delete=models.CASCADE)
+    message = models.TextField(max_length=300)
+    added_date = models.DateField(auto_now_add=True)
+    def __str__(self):
+        return self.Fname +" - "+self.Email
+    

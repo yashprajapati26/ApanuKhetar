@@ -110,6 +110,7 @@
                             <tbody>
                                 {% if myorder %}
                                 {% for i in myorder %}
+                                {% if i.status != "pending" %}
                                 <tr>
                                     <td class="shoping__cart__item">
                                         <img src="{{i.product.Product_image_1.url}}" style="width:90px;" alt="">
@@ -135,6 +136,7 @@
 
                                     </td>
                                 </tr>
+                                {% endif %}
                                 {% endfor %}
                                 {% else %}
                                 <tr>

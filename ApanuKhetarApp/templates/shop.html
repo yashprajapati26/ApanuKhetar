@@ -18,8 +18,9 @@
                     <div class="breadcrumb__text">
                         <h2>Organi Shop</h2>
                         <div class="breadcrumb__option">
-                            <a href="./index.html">Home</a>
+                            <a href="{% url 'index' %}">Home</a>
                             <span>Shop</span>
+                            
                         </div>
                     </div>
                 </div>
@@ -42,6 +43,16 @@
                                {% endfor %}
                             </ul>
                         </div>
+                        {% if sub_cat %}
+                        <div class="sidebar__item">
+                            <h4>Sub Category</h4>
+                            <ul>
+                                {% for i in sub_cat %}
+                                <li><a href="{% url 'shop2' pk=i.pk %}">{{i.Sub_Category_Name}}</a></li>
+                               {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
                         <div class="sidebar__item">
                             <!-- <h4>Price</h4>
                             <div class="price-range-wrap">
@@ -91,23 +102,29 @@
                         <div class="sidebar__item">
                             <div class="latest-product__text">
                                 <h4>Latest Products</h4>
+                                
                                 <div class="latest-product__slider owl-carousel">
+                                    {% for i in Latest_Product %}
+                                    {% if forloop.counter != 12 %}
                                     <div class="latest-prdouct__slider__item">
-                                        {% for i in products %}
-                                        {% if forloop.counter != 16 %}
+                                       
+                                        
                                         <a href="#" class="latest-product__item">
                                             <div class="latest-product__item__pic">
-                                                <img src="{{i.Product_image_1}}" alt="">
+                                                <img src="{{i.Product_image_1.url}}" alt="">
                                             </div>
                                             <div class="latest-product__item__text">
                                                 <h6>{{i.Product_Name}}</h6>
-                                                <span>{{i.Product_Price}}</span>
+                                                <span>&#x20b9; {{i.Product_Price}}</span>
                                             </div>
                                         </a>
-                                        {% endif %}
-                                        {% endfor %}
+                                        
+                                        
                                     </div>
+                                    {% endif %}
+                                {% endfor %}
                                 </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -115,7 +132,10 @@
 
                 <div class="col-lg-9 col-md-7">
                     <div class="product__discount">
-                        <div class="col-lg-12">
+                        <div class="section-title">
+                            <h2>Featured Product</h2>
+                        </div>
+                        <!-- <div class="col-lg-12">
                             <div class="section-title">
                                 <h2>Sub Categories</h2>
                             </div>
@@ -129,7 +149,7 @@
                                 </ul>
                             </div>
                             {% endif %}
-                        </div>
+                        </div> -->
 
                         <!-- <div class="section-title product__discount__title">
                             <h2>Sale Off</h2>
@@ -293,13 +313,15 @@
                                     {% for j in offer %}
                                     {% if j.product.Product_Name == i.Product_Name %}
                                     {% if j.offer_status == "Active" %}
-                                        <span style="color:green; font-size: 24px; font-weight: bold;">$ {{j.offer_Dicount_Price}}</span>
+                                    {% if now <= j.ended_date %}
+                                        <span style="color:green; font-size: 24px; font-weight: bold;">&#x20b9; {{j.offer_Dicount_Price}}</span>
+                                        {% endif %}
                                     
                                     {% endif %}
                                     {% endif %}
                                     {% endfor %}
                             <!-- <span style="font-weight: bold;">$ {{i.Product_Price}}</span> -->
-                            <h5>${{i.Product_Price}}</h5>
+                            <h5>&#x20b9; {{i.Product_Price}}</h5>
 
                                     
                                     

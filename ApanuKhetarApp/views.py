@@ -4,8 +4,10 @@ from . utils import *
 from random import *
 from ApanuKhetarProject.settings import RAZORPAY_API_KEY, RAZORPAY_API_SECRET_KEY
 import razorpay
+import datetime
 from django.core.mail import send_mail
 from django.db.models import Q
+from django.utils import timezone
 
 # Create your views here.
 
@@ -14,12 +16,14 @@ category = Category.objects.all()
 sub_category = Sub_Category.objects.all()
 products = Product.objects.all()
 offers = offer.objects.all()
-News = news.objects.all()
+News = news.objects.all().order_by("-id")
 data['category'] = category
 data['sub_category'] = sub_category
 data['products'] = products
 data['offer'] = offers
 data['news'] = News
+LatestProduct = Product.objects.all().order_by("-id")
+data['Latest_Product'] = LatestProduct
 for i in products:
     for j in offers:
         if j.product.Product_Name == i.Product_Name:
@@ -30,9 +34,15 @@ for i in products:
                 temp = float(product_price - offer_dic)
                 j.offer_Dicount_Price = temp
                 j.save()
+                
+now = timezone.now()
+print(now)
+data['now'] = now
 
 def index(request):
     print(data['category'])
+    
+    
     return render(request, 'index.html',data)
 
 def contact(request):
@@ -67,6 +77,11 @@ def product_details(request,pk):
     more_products = Product.objects.filter(Category=cat)
     data['product'] = product
     data['more_products'] = more_products
+
+    offer1 = offer.objects.filter(product=product,offer_status="Active")
+    data['offer1'] = offer1
+    feeds = Feedback.objects.filter(product=product)
+    data['feeds'] = feeds
     return render(request, 'product_details.html',data)
 
 
@@ -96,6 +111,7 @@ def shop1(request,pk):
         product = Product.objects.filter(Category=sc)
         print(product)
         data['products_shop'] = product
+        
         msg = ""
         data['msg'] = msg
         return render(request, 'shop.html',data)
@@ -243,7 +259,7 @@ def check_otp(request):
 def search_product(request):
     if request.method == 'POST':
         search=request.POST['fsearch']
-        search_list=Product.objects.filter(Q(Product_Name__contains=search) | Q(Category__Sub_Category_Name__contains=search))
+        search_list=Product.objects.filter(Q(Product_Name__contains=search) | Q(Category__Sub_Category_Name__contains=search) | Q(Category__Main_Category__Category_Name__contains=search))
         data['search_list'] = search_list
         return render(request,'search_product.html',data)
 
@@ -405,10 +421,13 @@ def mycart(request):
             for j in offers:
                 if j.product.Product_Name == i.product.Product_Name:
                     if j.offer_status == "Active":
-                        i.discount_percentage = j.offer_Dicount_Percentage
-                        i.after_dicount_price = j.offer_Dicount_Price
-                        i.save()
-            
+                        now1 = data['now']
+                        if now1 <= j.ended_date:
+                        
+                            i.discount_percentage = j.offer_Dicount_Percentage
+                            i.after_dicount_price = j.offer_Dicount_Price
+                            i.save()
+                
             # count netprice 
             temp = float(i.total_price)
             print(temp)
@@ -458,13 +477,18 @@ def add_to_cart(request,pk):
             if request.method == 'POST':
                 vqty = int(request.POST['fqty'])
                 price=float(product.Product_Price)
+
                 total_price = float(price * vqty)
 
                 for i in offers:
                     if i.product.Product_Name == product.Product_Name:
                         if i.offer_status == "Active":
-                            temp = float(i.offer_Dicount_Price)
-                            total_price = float(temp * vqty)
+                            now1 = data['now']
+                            if now1 <= i.ended_date:
+                                temp = float(i.offer_Dicount_Price)
+                                total_price = float(temp * vqty)
+                            
+
 
 
 
@@ -478,8 +502,10 @@ def add_to_cart(request,pk):
                 for i in offers:
                     if i.product.Product_Name == product.Product_Name:
                         if i.offer_status == "Active":
-                            price = i.offer_Dicount_Price
-                            total_price = i.offer_Dicount_Price
+                            now1 = data['now']
+                            if now1 <= i.ended_date:
+                                price = i.offer_Dicount_Price
+                                total_price = i.offer_Dicount_Price
 
                 Cart.objects.create(user=user,product=product,price=price,total_price=total_price)
                 print(">>Added To Cart")
@@ -490,7 +516,7 @@ def add_to_cart(request,pk):
         print("-->",e)
         print("User Must Be Login...")
         msg = "User Must Be Login for use Cart Features."
-        return render(request, 'login.html',{'msg1':msg},data)
+        return render(request, 'login.html',{'msg1':msg})
 
 
 def remove_from_cart(request,pk):
@@ -629,5 +655,22 @@ def invoice(request):
         print(e)
         msg ="Please Try Again.Somothing was Wrong! "
         return render (request,'checkout.html',{'msg':msg,'user':user,'cart':cart,'net_total':net_total,'tax':tax,'sub_total':sub_total})
-        
 
+
+def feedback(request,pk):
+    product = Product.objects.get(pk=pk)
+    cat = product.Category
+    more_products = Product.objects.filter(Category=cat)
+    data['product'] = product
+    data['more_products'] = more_products
+
+    feeds = Feedback.objects.filter(product=product)
+    data['feeds'] = feeds
+
+    if request.method == 'POST':
+        vname = request.POST['fname']
+        vemail = request.POST['femail']
+        vmsg = request.POST['fmsg']
+        Feedback.objects.create(Fname=vname,Email=vemail,product=product,message=vmsg)
+    
+    return render(request, 'product_details.html',data)
