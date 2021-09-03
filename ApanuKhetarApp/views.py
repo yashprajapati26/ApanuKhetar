@@ -177,16 +177,17 @@ def login(request):
                 gen_otp = randint(1000,9999) 
                 print(gen_otp)
                 sendmail(email_Subject,'otpVerification_emailTemplate',Email,{'name':user.FirstName,'gen_otp':gen_otp})
-                return render(request, 'otp_signup.html',{'gen_otp':gen_otp,'femail':Email},data)
+                return render(request, 'otp_signup.html',{'gen_otp':gen_otp,'femail':Email})
                 
         except Exception as e:
-            print(e)
+            print(">>",e)
             if Email=="" and Password=="":
                 msg="please enter all fileds"
-                return render(request,'login.html',{'msg1':msg},data)
+                print(msg)
+                return render(request,'login.html',{'msg1':msg})
             else:
                 msg="Password Wrong.Please Enter Valid Password."
-                return render(request,'login.html',{'msg1':msg},data)
+                return render(request,'login.html',{'msg1':msg})
             
         # return render(request, 'index.html')
     else:
