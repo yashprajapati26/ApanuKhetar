@@ -89,6 +89,8 @@ def shoping_cart(request):
     return render(request, 'shoping_cart.html',data)
 
 def shop(request):
+    # temp = Category.objects.get(pk=1)
+    data['name_category'] = "All Products"
     pk=1
     cat = Category.objects.get(pk=pk)
     sub_cat = Sub_Category.objects.filter(Main_Category=cat)
@@ -96,10 +98,13 @@ def shop(request):
     product = Product.objects.all()
     print(product)
     data['products_shop'] = product
+
+
     return render(request, 'shop.html',data)
 
 def shop1(request,pk):
     cat = Category.objects.get(pk=pk)
+    data['name_category'] = cat.Category_Name
     sub_cat = Sub_Category.objects.filter(Main_Category=cat)
     data['sub_cat']=sub_cat
     print(sub_cat)
